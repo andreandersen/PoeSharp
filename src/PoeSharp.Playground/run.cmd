@@ -1,0 +1,1 @@
+bin\pub\PoeSharp.Playground %*

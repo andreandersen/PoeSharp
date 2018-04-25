@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="..\common.props" />
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <DefineConstants>TRACE;DEBUG;NETSTANDARD2_1</DefineConstants>
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="..\..\data\spec.json">
+            <Link>spec.json</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Visible>true</Visible>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Sprache" Version="2.1.3-develop-00018" />
+        <PackageReference Include="System.Memory" Version="4.5.0-preview2-26406-04" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PoeSharp.Shared\PoeSharp.Shared.csproj" />
+      <ProjectReference Include="..\PoeSharp.Util\PoeSharp.Util.csproj" />
+    </ItemGroup>
+
+</Project>
