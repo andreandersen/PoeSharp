@@ -55,6 +55,25 @@ namespace PoeSharp.Util
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe Span<T> Cast<T>(this Span<byte> buf) 
+        {
+            var sizeOf = Unsafe.SizeOf<T>();
+            fixed (void* ptr = &buf[0])
+            {
+                return new Span<T>(ptr, buf.Length / sizeOf);
+            }
+        }
+
+        public static unsafe Span<T> Cast<T>(this byte[] buf)
+        {
+            var sizeOf = Unsafe.SizeOf<T>();
+            fixed (void* ptr = &buf[0])
+            {
+                return new Span<T>(ptr, buf.Length / sizeOf);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe T ToImpl<T>(byte[] buf)
         {
             fixed (byte* b = &buf[0])

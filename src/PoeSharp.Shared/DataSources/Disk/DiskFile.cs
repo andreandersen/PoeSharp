@@ -78,7 +78,7 @@ namespace PoeSharp.Shared.DataSources.Disk
             if (file is DiskFile diskFile)
                 File.Copy(diskFile.Path, Path, true);
             else
-                using (var fs = new FileStream(Path, FileMode.Create, FileAccess.Write,
+                using (var fs = new FileStream(Path, FileMode.OpenOrCreate, FileAccess.Write,
                     FileShare.None, WriteStreamBuffer, FileOptions.None))
                 {
                     file.CopyToStream(fs);
@@ -88,7 +88,7 @@ namespace PoeSharp.Shared.DataSources.Disk
         public void Delete() => File.Delete(Path);
 
         public Stream GetStream() =>
-            new FileStream(Path, FileMode.Create, FileAccess.ReadWrite, FileShare.None,
+            new FileStream(Path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None,
                 WriteStreamBuffer);
 
         public Task<Stream> GetStreamAsync() => Task.FromResult(GetStream());

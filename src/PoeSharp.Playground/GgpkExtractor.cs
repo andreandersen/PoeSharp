@@ -8,7 +8,7 @@ namespace PoeSharp.Playground
     public class GgpkExtractor
     {
         private const string Filename =
-            @"C:\Users\Andre\Downloads\PoE-3.2.0-preload\Content.ggpk";
+            @"C:\Program Files (x86)\Grinding Gear Games\Path of Exile\Content.ggpk";
 
         public static void ExtractGggpk(params string[] args)
         {
@@ -20,7 +20,7 @@ namespace PoeSharp.Playground
             {
                 Console.WriteLine($"GGPK File parsed... {sw.Elapsed.TotalMilliseconds:N} ms");
 
-                var basePath = @"c:\ggpk2";
+                var basePath = @"c:\ggpk3";
 
                 if (args.Length > 0)
                     basePath = args[0];

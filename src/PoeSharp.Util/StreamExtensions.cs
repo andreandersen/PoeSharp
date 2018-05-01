@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace PoeSharp.Util
@@ -35,6 +36,22 @@ namespace PoeSharp.Util
             }
         }
 
+        public static unsafe uint ReadUInt32(this Stream stream)
+        {
+            stream.Read(BInt32, 0, 4);
+            fixed (byte* b = &BInt32[0])
+            {
+                return *(uint*)b;
+            }
+        }
+
+        public static byte[] ReadBytes(this Stream stream, int length)
+        {
+            var b = new byte[length];
+            stream.Read(b, 0, length);
+            return b;
+        }
+
         public static unsafe long ReadInt64(this Stream stream)
         {
             stream.Read(BInt64, 0, 8);
@@ -51,6 +68,23 @@ namespace PoeSharp.Util
             {
                 return *(ushort*)b;
             }
+        }
+
+        public static unsafe Span<T> Read<T>(this Stream stream, int elements)
+        {
+            var size = Unsafe.SizeOf<T>();
+            var buffer = stream.ReadBytes(elements * size);
+            fixed (void* ptr = &buffer[0])
+            {
+                return new Span<T>(ptr, buffer.Length / size);
+            }
+        }
+
+        public static T Read<T>(this Stream stream)
+        {
+            var size = Unsafe.SizeOf<T>();
+            var buffer = stream.ReadBytes(size);
+            return buffer.To<T>();
         }
 
         public static string ReadUnicodeString(this Stream stream, int length)
