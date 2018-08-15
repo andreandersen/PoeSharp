@@ -7,7 +7,7 @@ using PoeSharp.Util;
 
 namespace PoeSharp.Files.Ggpk
 {
-    internal class GgpkFile : IFile
+    internal sealed class GgpkFile : IFile
     {
         private readonly long _offset;
         private readonly GgpkFileSystem _root;
@@ -21,9 +21,9 @@ namespace PoeSharp.Files.Ggpk
             _offset = fileRecord.DataOffset;
             _root = root;
         }
+        public string Name { get; }
 
         public IDirectory Parent { get; }
-        public string Name { get; }
         public string Path => System.IO.Path.Combine(Parent.Path, Name);
         public long Size { get; }
 
@@ -41,7 +41,7 @@ namespace PoeSharp.Files.Ggpk
         /// <returns>MemoryStream with the file contents</returns>
         public Stream GetStream()
         {
-            var memStream = new MemoryStream((int) Size);
+            var memStream = new MemoryStream((int)Size);
             _root.SourceStream.CopyTo(memStream, _offset, Size);
             memStream.Position = 0;
             return memStream;

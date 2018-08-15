@@ -49,7 +49,9 @@ namespace PoeSharp.Metadata.Modifiers.Loaders
                         var stat = _stats[key];
                         var min = (int)m[$"Stat{x}Min"].Value;
                         var max = (int)m[$"Stat{x}Max"].Value;
-                        var statData = ((List<object>)m[$"Data{x}"].Value);
+
+                        // Can't recall what this was for. Pending deletion.
+                        // var statData = (List<object>)m[$"Data{x}"].Value;
 
                         return new ModifierStatValueRange(stat, min, max);
                     })

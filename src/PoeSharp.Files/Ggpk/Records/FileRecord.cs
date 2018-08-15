@@ -4,7 +4,7 @@ using PoeSharp.Util;
 
 namespace PoeSharp.Files.Ggpk.Records
 {
-    internal class FileRecord : IRecord
+    internal sealed class FileRecord : IRecord
     {
         internal FileRecord(Stream stream, int length)
         {
@@ -12,13 +12,12 @@ namespace PoeSharp.Files.Ggpk.Records
             Length = length;
             var nameLength = stream.ReadInt32() * 2;
 
-            var buffer = new byte[32 + nameLength];
-            stream.Read(buffer, 0, buffer.Length);
+            Span<byte> span = stackalloc byte[32 + nameLength];
 
-            var span = new Span<byte>(buffer);
+            stream.Read(span);
 
             Hash = span.Slice(0, 32).ToArray();
-            Name = span.Slice(32, buffer.Length - 34).ToUnicodeText();
+            Name = span.Slice(32, span.Length - 34).ToUnicodeText();
 
             DataOffset = stream.Position;
 

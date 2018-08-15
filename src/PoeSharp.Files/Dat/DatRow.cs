@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using PoeSharp.Files.Dat.Specification;
 using PoeSharp.Shared;
 using PoeSharp.Util;
@@ -17,14 +16,12 @@ namespace PoeSharp.Files.Dat
             Underlying = new Dictionary<string, DatValue>();
             var offset = 0;
 
-            Underlying.FirstOrDefault();
-
             foreach (var field in specification.Fields)
             {
                 var k = field.Key;
                 var v = field.Value;
 
-                var value = default(object);
+                object value;
                 if (v.ClrType.IsReference)
                 {
                     int dataOffset;
@@ -48,7 +45,6 @@ namespace PoeSharp.Files.Dat
                         {
                             if (dataOffset > data.Length)
                             {
-                                value = string.Empty;
                                 continue;
                             }
 
@@ -79,13 +75,12 @@ namespace PoeSharp.Files.Dat
             }
         }
 
-        private static List<object> ReadList(Type type, int start, int elements, ref Span<byte> data)
+        private static object[] ReadList(Type type, int start, int elements, ref Span<byte> data)
         {
-            var list = new List<object>();
+            var ret = new object[elements];
 
             if (type == typeof(string))
             {
-                var current = start;
                 for (int i = 0; i < elements; i++)
                 {
                     var length = data.Slice(start).IndexOf(StringNullTerminator);
@@ -94,8 +89,7 @@ namespace PoeSharp.Files.Dat
                         length++;
                     }
 
-                    var str = data.Slice(start, length);
-                    list.Add(str.ToUnicodeText());
+                    ret[i] = data.Slice(start, length).ToUnicodeText();
                     start += length;
                 }
             }
@@ -105,14 +99,19 @@ namespace PoeSharp.Files.Dat
 
                 for (int i = 0; i < elements; i++)
                 {
-                    var toAdd = data.Slice(start + (i * size), size).To(type);
-                    list.Add(toAdd);
+                    ret[i] = data.Slice(start + (i * size), size).To(type);
                 }
             }
-            return list;
+            return ret;
         }
 
-        private readonly static Dictionary<Type, int> SizeTable =
+        public T Value<T>(string key) =>
+            (T)Underlying[key].Value;
+
+        public object Value(string key) =>
+            Underlying[key].Value;
+
+        private static readonly Dictionary<Type, int> SizeTable =
             new Dictionary<Type, int>
             {
                 { typeof(bool), sizeof(bool) },

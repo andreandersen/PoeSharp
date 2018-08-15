@@ -14,13 +14,13 @@ namespace PoeSharp.Files.Psg
 
         public PsgFile(IFile file)
         {
-            using (Stream stream = file.GetStream())
+            using (var stream = file.GetStream())
             {
                 stream.Position = 1;
                 stream.Seek(stream.ReadByte(), SeekOrigin.Current);
 
                 // rootLength should be 7, the number of classes in the game
-                int rootLength = (int)stream.ReadUInt32();
+                var rootLength = (int)stream.ReadUInt32();
 
                 _roots = stream
                     .Read<uint>(rootLength)
@@ -36,18 +36,18 @@ namespace PoeSharp.Files.Psg
 
         private static List<GraphGroup> ExtractGroupNodes(Stream stream)
         {
-            uint groupLength = stream.ReadUInt32();
+            var groupLength = stream.ReadUInt32();
 
             return Enumerable.Range(0, (int)groupLength)
                 .Select(i =>
                 {
-                    GraphGroupStruct groupStruct = stream.Read<GraphGroupStruct>();
+                    var groupStruct = stream.Read<GraphGroupStruct>();
 
-                    IEnumerable<GraphNode> nodes = Enumerable.Range(0, (int)groupStruct.PassiveLength)
+                    var nodes = Enumerable.Range(0, (int)groupStruct.PassiveLength)
                         .Select(__ =>
                         {
-                            GraphGroupNodeStruct nodeStruct = stream.Read<GraphGroupNodeStruct>();
-                            List<uint> connections = nodeStruct.ConnectionLength > 0
+                            var nodeStruct = stream.Read<GraphGroupNodeStruct>();
+                            var connections = nodeStruct.ConnectionLength > 0
                                 ? stream.Read<uint>((int)nodeStruct.ConnectionLength)
                                     .ToArray().ToList()
                                 : new List<uint>();
@@ -61,7 +61,7 @@ namespace PoeSharp.Files.Psg
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct GraphGroupStruct
+        private readonly struct GraphGroupStruct
         {
             public readonly float X;
             public readonly float Y;
@@ -69,7 +69,7 @@ namespace PoeSharp.Files.Psg
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        private struct GraphGroupNodeStruct
+        private readonly struct GraphGroupNodeStruct
         {
             public readonly uint RowId;
             public readonly uint Radius;

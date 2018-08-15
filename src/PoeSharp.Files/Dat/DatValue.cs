@@ -7,8 +7,6 @@ namespace PoeSharp.Files.Dat
 {
     public sealed class DatValue
     {
-        private readonly DatFileIndex _idx;
-
         private static readonly object[] NullValues =
              { -0x1010102, 0xFEFEFEFE, -0x101010101010102, 0xFEFEFEFEFEFEFEFE, 0xFFFFFFFF };
 
@@ -16,7 +14,7 @@ namespace PoeSharp.Files.Dat
             DatFileIndex datIndex)
         {
             Specification = fieldData;
-            _idx = datIndex;
+            var idx = datIndex;
 
             if (!string.IsNullOrEmpty(fieldData.Key))
             {
@@ -25,14 +23,14 @@ namespace PoeSharp.Files.Dat
                     _fieldValue = new Lazy<object>(() => l
                         .Select(p =>
                             NullValues.Contains(p) ?
-                            null : _idx[fieldData.Key][Convert.ToInt32(p)])
+                            null : idx[fieldData.Key][Convert.ToInt32(p)])
                         .ToList());
                 }
-                else if (fieldValue is ulong || fieldValue is int)
+                else if (fieldValue is ulong || fieldValue is int || fieldValue is uint)
                 {
                     _fieldValue = NullValues.Contains(fieldValue) ?
                         new Lazy<object>(() => null) :
-                        new Lazy<object>(() => _idx[fieldData.Key][Convert.ToInt32(fieldValue)]);
+                        new Lazy<object>(() => idx[fieldData.Key][Convert.ToInt32(fieldValue)]);
                 }
                 else
                 {
@@ -57,7 +55,6 @@ namespace PoeSharp.Files.Dat
 
         public FieldSpecification Specification { get; }
         public object Value => _fieldValue.Value;
-
         public override string ToString() => Value?.ToString();
     }
 }

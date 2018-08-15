@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using PoeSharp.Files.Ggpk.Records;
 using PoeSharp.Shared.DataSources;
@@ -47,33 +48,31 @@ namespace PoeSharp.Files.Ggpk
         {
             get
             {
-                if (!string.IsNullOrEmpty(_path))
-                {
-                    return _path;
-                }
-
+                if (!string.IsNullOrEmpty(_path)) return _path;
                 _path = $"{Parent.Path}{System.IO.Path.PathSeparator}{Name}";
                 return _path;
+
             }
         }
 
         public IFileSystemEntry this[string index] => _indexDict.Value[index];
 
+
         public void CopyTo(IWritableDirectory destination)
         {
-            var tasks = new List<Task>();
-
-            _files.ForEach(c =>
+            for (var i = 0; i < _files.Count; i++)
             {
+                var c = _files[i];
                 var destFile = destination.GetOrCreateFile(c.Name);
                 destFile.CopyFrom(c);
-            });
+            }
 
-            _directories.ForEach(c =>
+            for (var i = 0; i < _directories.Count; i++)
             {
+                var c = _directories[i];
                 var newDir = destination.GetOrCreateDirectory(c.Name);
                 c.CopyTo(newDir);
-            });
+            }
         }
 
         public override string ToString() => $"{Name} (GGPK Directory)";

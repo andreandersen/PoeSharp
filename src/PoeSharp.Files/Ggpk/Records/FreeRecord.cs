@@ -3,7 +3,7 @@ using PoeSharp.Util;
 
 namespace PoeSharp.Files.Ggpk.Records
 {
-    internal class FreeRecord : IRecord
+    internal sealed class FreeRecord : IRecord
     {
         internal FreeRecord(Stream stream, int length)
         {
