@@ -1,0 +1,8 @@
+<Project>
+    <Import Project="dependencies.props" />
+    <PropertyGroup>
+        <Copyright>Andre Andersen, All rights reserved</Copyright>
+        <Authors>Andre Andersen</Authors>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+</Project>
