@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'netstandard2.0'">
+      <PropertyGroup>
+        <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <PackageReference Include="System.Memory" Version="*" />
+        <PackageReference Include="System.Buffers" Version="*" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <DefineConstants>TRACE;NETCORE</DefineConstants>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <PackageReference Include="System.Buffers.Primitives" Version="0.1.0-preview2-181226-1" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+    <PackageReference Include="System.Text.Primitives" Version="0.1.0-preview2-181226-1" />
+    <PackageReference Include="System.Text.Utf8String" Version="0.1.0-preview2-181226-1" />
+  </ItemGroup>
+
+</Project>
