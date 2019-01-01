@@ -15,9 +15,9 @@ namespace PoeSharp.Filetypes.Ggpk.Records
             Span<byte> bytes = new byte[32 + (nameLength * 2)];
             stream.Read(bytes);
 
-            //Hash = bytes
-            //    .Slice(0, 32)
-            //    .ToArray();
+            Hash = bytes
+                .Slice(0, 32)
+                .ToArray();
 
             Name = bytes
                 .Slice(32, bytes.Length - 34)
@@ -35,7 +35,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
         public int DataLength { get; }
         public int Length { get; }
 
-        //public ReadOnlyMemory<byte> Hash { get; }
+        public ReadOnlyMemory<byte> Hash { get; }
         public ReadOnlyMemory<byte> Name { get; }
     }
 }

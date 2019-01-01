@@ -20,7 +20,7 @@
   </Choose>
 
   <ItemGroup>
-    <ProjectReference Include="..\PoeSharp.Filetypes\PoeSharp.Filetypes.csproj" />
+    <ProjectReference Include="..\..\PoeSharp.Filetypes\PoeSharp.Filetypes.csproj" />
   </ItemGroup>
 
 </Project>

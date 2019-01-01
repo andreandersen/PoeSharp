@@ -79,6 +79,8 @@ namespace PoeSharp.Filetypes.Ggpk
                             var dir = new GgpkDirectory(dr, this);
                             _directories.Add(dir.Name, dir);
                             break;
+                        default:
+                            break;
                     }
                 }
 

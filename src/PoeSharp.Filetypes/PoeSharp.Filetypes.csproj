@@ -31,4 +31,8 @@
     <PackageReference Include="System.Text.Utf8String" Version="0.1.0-preview2-181226-1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Dat\" />
+  </ItemGroup>
+
 </Project>

@@ -1,19 +1,36 @@
 ﻿using System;
-using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using PoeSharp.Filetypes.Ggpk;
 using PoeSharp.Filetypes.Ggpk.Exporter;
 
-namespace PoeSharp.ConsoleTestApp.Examples
+namespace GgpkExport
 {
-    public static class ExportGgpkExample
+    class Program
     {
+        static async Task Main(string[] args)
+        {
+            // Set this path to where your Content.ggpk path is:
+            var ggpkPath = @"C:\Program Files (x86)\Grinding Gear Games\Path of Exile\Content.ggpk";
+
+            // Set this path to where you want your files to be exported to:
+            var exportPath = @"D:\noindex\ggpk6";
+
+            await RunExporter(ggpkPath, exportPath, exportTasks: 64);
+
+            if (Debugger.IsAttached)
+                Console.ReadKey(true);
+        }
+
         public static async Task RunExporter(string ggpkFile, string exportFolder, int exportTasks)
         {
+
+            Console.WriteLine($"Source:       {ggpkFile}");
+            Console.WriteLine($"Destination:  {exportFolder}");
+            Console.WriteLine($"Export tasks: {exportTasks}\r\n");
+            Console.WriteLine("Exporting...\r\n");
             _startTime = DateTime.Now;
             _currentTop = Console.CursorTop + 1;
-            // ^--- used for status update in console
-
 
             var ggpk = new GgpkFileSystem(ggpkFile);
 
@@ -111,6 +128,6 @@ namespace PoeSharp.ConsoleTestApp.Examples
             }
         }
 
-        #endregion
+        #endregion        
     }
 }
