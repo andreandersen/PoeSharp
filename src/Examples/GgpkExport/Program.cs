@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Text;
 using System.Threading.Tasks;
 using PoeSharp.Filetypes.Ggpk;
 using PoeSharp.Filetypes.Ggpk.Exporter;

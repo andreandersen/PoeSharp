@@ -6,7 +6,7 @@ using PoeSharp.Filetypes.Ggpk.Records;
 namespace PoeSharp.Filetypes.Ggpk
 {
     public partial class GgpkFileSystem
-    {       
+    {
         private readonly ThreadLocal<FileStream> _threadStream;
         private readonly GgpkDirectory _rootDirectory;
         internal FileStream Stream => _threadStream.Value;
@@ -17,7 +17,7 @@ namespace PoeSharp.Filetypes.Ggpk
 
         public GgpkFileSystem(string path)
         {
-            _threadStream = new ThreadLocal<FileStream>(() => 
+            _threadStream = new ThreadLocal<FileStream>(() =>
                 File.OpenRead(path));
 
             Path = path;
@@ -37,7 +37,7 @@ namespace PoeSharp.Filetypes.Ggpk
             foreach (var offset in ggpk.RecordOffsets.Span)
             {
                 Stream.Position = offset;
-                var header = Stream.ReadRecordHeader();
+                RecordHeader header = Stream.ReadRecordHeader();
                 if (header.Type == RecordType.Directory)
                 {
                     dirRecord = new DirectoryRecord(Stream, header.Length);
