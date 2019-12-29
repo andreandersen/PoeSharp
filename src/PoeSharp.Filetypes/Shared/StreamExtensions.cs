@@ -8,7 +8,6 @@ namespace PoeSharp.Filetypes
     public static class StreamExtensions
     {
 
-#if NETCORE
         public static void CopyTo(this Stream source, Stream destination, long offset,
             long length, int bufferSize = 80 * 1024)
         {
@@ -24,23 +23,7 @@ namespace PoeSharp.Filetypes
                 bytes -= read;
             } while (read > 0 && bytes > 0);
         }
-#else
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CopyTo(this Stream source, Stream destination, long offset,
-            long length, int bufferSize = 80 * 1024)
-        {
-            var buffer = new byte[bufferSize];
-            source.Position = offset;
-            int read;
-            var bytes = length;
-            do
-            {
-                read = source.Read(buffer, 0, (int)Math.Min(bytes, bufferSize));
-                destination.Write(buffer, 0, read);
-                bytes -= read;
-            } while (read > 0 && bytes > 0);
-        }
-#endif
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe int ReadInt32(this Stream stream)
         {
@@ -96,25 +79,6 @@ namespace PoeSharp.Filetypes
                 return *(ushort*)b;
             }
         }
-
-#if NETSTANDARD
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Read(this Stream stream, Span<byte> buffer)
-        {
-            var sharedBuffer = ArrayPool<byte>.Shared.Rent(buffer.Length);
-            try
-            {
-                var numRead = stream.Read(sharedBuffer, 0, buffer.Length);
-                if ((uint)numRead > buffer.Length)
-                {
-                    throw new IOException("Read too much");
-                }
-                new Span<byte>(sharedBuffer, 0, numRead).CopyTo(buffer);
-                return numRead;
-            }
-            finally { ArrayPool<byte>.Shared.Return(sharedBuffer); }
-        }
-#endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Span<T> Read<T>(this Stream stream, int elements)

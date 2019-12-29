@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace PoeSharp.Filetypes.Ggpk.Records
 {
     [StructLayout(LayoutKind.Auto, Pack = 0)]
-    internal readonly struct DirectoryEntry
+    public readonly struct DirectoryEntry
     {
         internal DirectoryEntry(in uint hash, long offset)
         {

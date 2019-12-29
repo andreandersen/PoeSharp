@@ -20,6 +20,8 @@ namespace PoeSharp.Filetypes.Ggpk
         public GgpkDirectory Parent { get; }
         public string Path { get; }
 
+        public DirectoryRecord Record { get; }
+
         public IReadOnlyDictionary<string, GgpkDirectory> Directories
         {
             get
@@ -42,6 +44,7 @@ namespace PoeSharp.Filetypes.Ggpk
                     GgpkDirectory parent,
                     GgpkFileSystem root = null)
         {
+            Record = dirRecord;
             Name = new Utf8Span(dirRecord.Name.Span).ToString();
             Parent = parent;
             Root = root ?? parent.Root;

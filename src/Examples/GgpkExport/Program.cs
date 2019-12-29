@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using PoeSharp.Filetypes.Ggpk;
@@ -14,13 +16,43 @@ namespace GgpkExport
             // Set this path to where your Content.ggpk path is:
             var ggpkPath = @"C:\Program Files (x86)\Grinding Gear Games\Path of Exile\Content.ggpk";
 
-            // Set this path to where you want your files to be exported to:
-            var exportPath = @"D:\noindex\ggpk6";
+
+                // Set this path to where you want your files to be exported to:
+            var exportPath = @"c:\noindex\ggpklegion";
+            var sb = new StringBuilder();
+            Stopwatch sw = Stopwatch.StartNew();
+            var ggpk = new GgpkFileSystem(ggpkPath);
+
+
+            //var fileList = new List<string>();
+            //foreach (var dir in ggpk.Directories["Art"].Directories["Models"].Directories)
+            //{
+            //    Enumerate(dir.Value, fileList);
+            //}
+
+            //Console.WriteLine($"{fileList.Count} files in enumerated");
+
+            //sw.Stop();
+            
 
             await RunExporter(ggpkPath, exportPath, exportTasks: 64);
+            Console.WriteLine($"Exported in {sw.Elapsed.TotalMilliseconds} ms");
 
-            if (Debugger.IsAttached)
-                Console.ReadKey(true);
+            //if (Debugger.IsAttached)
+            //    Console.ReadKey(true);
+        }
+
+        private static void Enumerate(GgpkDirectory dir, List<string> list)
+        {
+            foreach (var file in dir.Files)
+            {
+                list.Add(Path.Combine(file.Value.Path, file.Key));
+            }
+
+            foreach (var subDir in dir.Directories)
+            {
+                Enumerate(subDir.Value, list);
+            }
         }
 
         public static async Task RunExporter(string ggpkFile, string exportFolder, int exportTasks)

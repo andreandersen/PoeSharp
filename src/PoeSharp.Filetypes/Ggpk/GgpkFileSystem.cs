@@ -15,6 +15,8 @@ namespace PoeSharp.Filetypes.Ggpk
         public IReadOnlyDictionary<string, GgpkDirectory> Directories => _rootDirectory.Directories;
         public IReadOnlyDictionary<string, GgpkFile> Files => _rootDirectory.Files;
 
+        public GgpkDirectory Root => _rootDirectory;
+
         public GgpkFileSystem(string path)
         {
             _threadStream = new ThreadLocal<FileStream>(() =>

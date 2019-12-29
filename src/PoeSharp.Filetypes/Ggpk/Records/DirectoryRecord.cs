@@ -8,7 +8,7 @@ using System.Text.Utf8;
 
 namespace PoeSharp.Filetypes.Ggpk.Records
 {
-    internal sealed class DirectoryRecord : IRecord
+    public sealed class DirectoryRecord : IRecord
     {
         internal DirectoryRecord(Stream stream, int length)
         {
@@ -20,7 +20,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
             var nameLength = bytes.Slice(0, 4).To<int>();
             var entriesLength = bytes.Slice(4, 4).To<int>();
 
-            //Hash = bytes.Slice(8, 32).ToArray();
+            Hash = bytes.Slice(8, 32).ToArray();
 
             Span<byte> name = stackalloc byte[nameLength - 1];
 
@@ -52,7 +52,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
         public int Length { get; }
 
         public ReadOnlyMemory<DirectoryEntry> Entries { get; }
-        //public ReadOnlyMemory<byte> Hash { get; }
+        public ReadOnlyMemory<byte> Hash { get; }
         public ReadOnlyMemory<byte> Name { get; }
     }
 }
