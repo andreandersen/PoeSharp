@@ -5,17 +5,17 @@ using PoeSharp.Filetypes.Ggpk.Records;
 
 namespace PoeSharp.Filetypes.Ggpk
 {
-    public partial class GgpkFileSystem
+    public sealed class GgpkFileSystem
     {
         private readonly ThreadLocal<FileStream> _threadStream;
-        private readonly GgpkDirectory _rootDirectory;
+
         internal FileStream Stream => _threadStream.Value;
 
         public string Path;
-        public IReadOnlyDictionary<string, GgpkDirectory> Directories => _rootDirectory.Directories;
-        public IReadOnlyDictionary<string, GgpkFile> Files => _rootDirectory.Files;
+        public IReadOnlyDictionary<string, GgpkDirectory> Directories => Root.Directories;
+        public IReadOnlyDictionary<string, GgpkFile> Files => Root.Files;
 
-        public GgpkDirectory Root => _rootDirectory;
+        public GgpkDirectory Root { get; }
 
         public GgpkFileSystem(string path)
         {
@@ -23,7 +23,7 @@ namespace PoeSharp.Filetypes.Ggpk
                 File.OpenRead(path));
 
             Path = path;
-            _rootDirectory = GetRootDirectory();
+            Root = GetRootDirectory();
         }
 
         private GgpkDirectory GetRootDirectory()

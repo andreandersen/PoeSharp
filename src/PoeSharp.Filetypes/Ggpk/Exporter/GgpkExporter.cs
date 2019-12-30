@@ -34,9 +34,6 @@ namespace PoeSharp.Filetypes.Ggpk.Exporter
                 }
             }
 
-            var enumerations = StartEnumerationTasks(config, status);
-            var exports = StartExportTasks(config, status);
-
             await Task.WhenAll(Enumerable.Union(
                     StartEnumerationTasks(config, status),
                     StartExportTasks(config, status))).ConfigureAwait(false);
