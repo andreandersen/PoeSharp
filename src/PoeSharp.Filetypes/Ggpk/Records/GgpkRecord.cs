@@ -24,7 +24,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
 
         public long Offset { get; }
         public int Length { get; }
-        public ReadOnlyMemory<byte> Name => Memory<byte>.Empty;
+        public ReadOnlyMemory<char> Name => Memory<char>.Empty;
         public Memory<long> RecordOffsets { get; }
     }
 }

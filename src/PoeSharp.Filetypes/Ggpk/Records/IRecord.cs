@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Utf8;
 
 namespace PoeSharp.Filetypes.Ggpk.Records
 {
@@ -10,7 +9,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
         /// <summary>
         /// UTF-8 representation in bytes
         /// </summary>
-        ReadOnlyMemory<byte> Name { get; }
+        ReadOnlyMemory<char> Name { get; }
 
         long Offset { get; }
     }

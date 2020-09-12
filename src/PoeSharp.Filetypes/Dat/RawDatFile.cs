@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+
 using PoeSharp.Filetypes.Ggpk;
 
 namespace PoeSharp.Filetypes.Dat

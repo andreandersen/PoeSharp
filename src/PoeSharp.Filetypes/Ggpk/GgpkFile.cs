@@ -1,7 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Text.Utf8;
 using PoeSharp.Filetypes.Ggpk.Records;
 
 namespace PoeSharp.Filetypes.Ggpk
@@ -19,7 +17,7 @@ namespace PoeSharp.Filetypes.Ggpk
         internal GgpkFile(in FileRecord fileRecord, in GgpkDirectory parent)
         {
             Parent = parent;
-            Name = new Utf8Span(fileRecord.Name.Span).ToString();
+            Name = fileRecord.Name.ToString();
             Path = System.IO.Path.Combine(Parent.Path, Name);
             Size = fileRecord.DataLength;
             _offset = fileRecord.DataOffset;
@@ -29,6 +27,15 @@ namespace PoeSharp.Filetypes.Ggpk
         {
             var source = Parent.Root.Stream;
             source.CopyTo(stream, _offset, Size);
+        }
+
+        public MemoryStream GetStream()
+        {
+            var source = Parent.Root.Stream;
+            var dest = new MemoryStream();
+            source.CopyTo(dest);
+            source.Position = 0;
+            return dest;
         }
 
         public void Extract(string path)

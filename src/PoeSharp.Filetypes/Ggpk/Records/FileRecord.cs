@@ -36,6 +36,6 @@ namespace PoeSharp.Filetypes.Ggpk.Records
         public int Length { get; }
 
         public ReadOnlyMemory<byte> Hash { get; }
-        public ReadOnlyMemory<byte> Name { get; }
+        public ReadOnlyMemory<char> Name { get; }
     }
 }

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text.Utf8;
 
 namespace PoeSharp.Filetypes.Ggpk.Records
 {
@@ -22,7 +21,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
 
             Hash = bytes.Slice(8, 32).ToArray();
 
-            Span<byte> name = stackalloc byte[nameLength - 1];
+            Span<char> name = stackalloc char[nameLength - 1];
 
             bytes.Slice(40, (nameLength - 1) * 2)
                 .FromUnicodeBytesToUtf8()
@@ -53,6 +52,6 @@ namespace PoeSharp.Filetypes.Ggpk.Records
 
         public ReadOnlyMemory<DirectoryEntry> Entries { get; }
         public ReadOnlyMemory<byte> Hash { get; }
-        public ReadOnlyMemory<byte> Name { get; }
+        public ReadOnlyMemory<char> Name { get; }
     }
 }

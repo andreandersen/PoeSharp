@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.Utf8;
 using PoeSharp.Filetypes.Ggpk.Records;
 
 namespace PoeSharp.Filetypes.Ggpk
@@ -45,7 +45,7 @@ namespace PoeSharp.Filetypes.Ggpk
                     GgpkFileSystem root = null)
         {
             Record = dirRecord;
-            Name = new Utf8Span(dirRecord.Name.Span).ToString();
+            Name = dirRecord.Name.ToString();
             Parent = parent;
             Root = root ?? parent.Root;
             Path = Parent != null ?
