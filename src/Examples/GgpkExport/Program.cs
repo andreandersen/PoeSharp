@@ -1,65 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+
+using CommandLine;
+
 using PoeSharp.Filetypes.Ggpk;
 using PoeSharp.Filetypes.Ggpk.Exporter;
 
 namespace GgpkExport
 {
-    class Program
+    internal class Program
     {
-        static async Task Main(string[] args)
+        private static async Task Main(string[] args)
         {
-            // Set this path to where your Content.ggpk path is:
-            var ggpkPath = @"C:\Program Files (x86)\Grinding Gear Games\Path of Exile\Content.ggpk";
+            _ = await Parser.Default.ParseArguments<Options>(args)
+                .WithParsedAsync(RunExporter);
 
-
-                // Set this path to where you want your files to be exported to:
-            var exportPath = @"c:\noindex\ggpklegion";
-            var sb = new StringBuilder();
-            Stopwatch sw = Stopwatch.StartNew();
-            var ggpk = new GgpkFileSystem(ggpkPath);
-
-
-            //var fileList = new List<string>();
-            //foreach (var dir in ggpk.Directories["Art"].Directories["Models"].Directories)
-            //{
-            //    Enumerate(dir.Value, fileList);
-            //}
-
-            //Console.WriteLine($"{fileList.Count} files in enumerated");
-
-            //sw.Stop();
-            
-
-            await RunExporter(ggpkPath, exportPath, exportTasks: 64);
-            Console.WriteLine($"Exported in {sw.Elapsed.TotalMilliseconds} ms");
-
-            //if (Debugger.IsAttached)
-            //    Console.ReadKey(true);
+            Console.WriteLine("\n\nThanks for using GGPK Export.\nPlease report any issues on GitHub :)");
         }
 
-        private static void Enumerate(GgpkDirectory dir, List<string> list)
-        {
-            foreach (var file in dir.Files)
-            {
-                list.Add(Path.Combine(file.Value.Path, file.Key));
-            }
+        private static async Task RunExporter(Options options) => await RunExporter(
+                options.SourceFile, options.DestinationFolder,
+                options.ExporterTasks, options.EnumerationTasks);
 
-            foreach (var subDir in dir.Directories)
-            {
-                Enumerate(subDir.Value, list);
-            }
-        }
-
-        public static async Task RunExporter(string ggpkFile, string exportFolder, int exportTasks)
+        private static async Task RunExporter(
+            string ggpkFile, string exportFolder, int exportTasks, int enumerationTasks)
         {
+            var sw = Stopwatch.StartNew();
 
             Console.WriteLine($"Source:       {ggpkFile}");
             Console.WriteLine($"Destination:  {exportFolder}");
+            Console.WriteLine($"Enum tasks:   {enumerationTasks}");
             Console.WriteLine($"Export tasks: {exportTasks}\r\n");
             Console.WriteLine("Exporting...\r\n");
             _startTime = DateTime.Now;
@@ -72,13 +44,14 @@ namespace GgpkExport
 
             await exporter.Export(ggpk, new ExportConfig(
                 exportFolder,
-                enumerationTasks: 2,
+                enumerationTasks: enumerationTasks,
                 exportTasks: exportTasks,
                 shallow: false));
 
 
             // We're done!
             Console.WriteLine("\r\nDone exporting.");
+            Console.WriteLine($"Exported in {sw.Elapsed.TotalMilliseconds} ms");
             Console.CursorVisible = true;
             exporter.FileExported -= Exporter_FileExported;
         }
@@ -87,9 +60,10 @@ namespace GgpkExport
 
         private static DateTime _startTime;
         private static int _currentTop;
-        private static object _consoleLock = new object();
-        private readonly static char[] _spinner = new[] { '|', '/', '-', '\\' };
-        private static int _spinnerPos = 0;
+        private static readonly object _consoleLock = new object();
+        private static readonly char[] _spinner = new[] { '|', '/', '-', '\\' };
+        private static int _spinnerPos;
+
         private static void Exporter_FileExported(object sender, ExportedFileEventArgs e)
         {
             if (e.TotalFilesWrittenCount % 100 == 0 || e.TotalFileCount - e.TotalFilesWrittenCount == 0)
@@ -98,8 +72,8 @@ namespace GgpkExport
 
                 var elapsed = DateTime.Now.Subtract(_startTime);
                 var itemsPerSecond = e.TotalFilesWrittenCount / elapsed.TotalSeconds;
-                var mbTotal = e.TotalFileSize / (float)1024 / (float)1024;
-                var mbWritten = e.TotalFilesWrittenSize / (float)1024 / (float)1024;
+                var mbTotal = e.TotalFileSize / (float)1024 / 1024;
+                var mbWritten = e.TotalFilesWrittenSize / (float)1024 / 1024;
                 var mbPerSec = mbWritten / elapsed.TotalSeconds;
 
                 var width = Console.BufferWidth - 10;
@@ -113,7 +87,7 @@ namespace GgpkExport
                 sb.AppendLine($"Files per second:        {itemsPerSecond:###,###0}".PadRight(width));
                 sb.AppendLine($"Write throughput:        {mbPerSec:###,###0} MB/s".PadRight(width));
                 sb.AppendLine("".PadRight(width));
-                sb.AppendLine($"Elapsed:                 {elapsed.ToString("hh\\:mm\\:ss"),-10}".PadRight(width));
+                sb.AppendLine($"Elapsed:                 {elapsed,-10:hh\\:mm\\:ss}".PadRight(width));
 
                 var barWidth = width - 25;
                 var progressBytes = e.TotalFilesWrittenSize / (double)e.TotalFileSize;
@@ -124,9 +98,8 @@ namespace GgpkExport
 
                 var fill = '=';
                 var shaded = '-';
-
-                string progBytes = "";
-                string progCount = "";
+                string progBytes;
+                string progCount;
 
                 if (e.IsEnumerationDone)
                 {
@@ -146,7 +119,9 @@ namespace GgpkExport
 
                     _spinnerPos++;
                     if (_spinnerPos == _spinner.Length)
+                    {
                         _spinnerPos = 0;
+                    }
                 }
 
                 sb.AppendLine("\r\n" + progBytes.PadRight(width));
@@ -154,7 +129,7 @@ namespace GgpkExport
 
                 lock (_consoleLock)
                 {
-                    Console.CursorVisible = false;
+                    //Console.CursorVisible = false;
                     Console.SetCursorPosition(0, _currentTop);
                     Console.Write(sb.ToString());
                 }

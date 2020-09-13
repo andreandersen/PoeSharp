@@ -8,8 +8,18 @@
     <PublishReadyToRun>true</PublishReadyToRun>
     <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <Authors>Andre Andersen</Authors>
+    <Company />
+    <Product />
+    <Version>1.0.0</Version>
+    <Description></Description>
     
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
+    <PackageReference Include="System.CommandLine.Rendering" Version="0.3.0-alpha.20427.1" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\PoeSharp.Filetypes\PoeSharp.Filetypes.csproj" />
