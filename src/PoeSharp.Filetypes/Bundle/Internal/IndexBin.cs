@@ -2,8 +2,8 @@
 {
     internal struct IndexBin
     {
-        public uint UncompressedSize { get; internal init; }
-        public uint TotalPayloadSize { get; internal init; }
-        public uint HeadPayloadSize { get; internal init; }
+        public uint UncompressedSize { get; init; }
+        public uint TotalPayloadSize { get; init; }
+        public uint HeadPayloadSize { get; init; }
     }
 }
