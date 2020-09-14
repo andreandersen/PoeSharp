@@ -1,26 +1,29 @@
-﻿namespace PoeSharp.Filetypes.Bundle.Internal
+﻿using System.Runtime.InteropServices;
+
+namespace PoeSharp.Filetypes.Bundle.Internal
 {
-    internal struct IndexBinHead
+    [StructLayout(LayoutKind.Explicit, Size = 60)]
+    public readonly struct IndexBinHead
     {
-        public EncodingInDecimal FirstFileEncode { get; init; }
+        [FieldOffset(00)] public readonly uint UncompressedSize;
+        [FieldOffset(04)] public readonly uint TotalPayloadSize;
+        [FieldOffset(08)] public readonly uint HeadPayloadSize;
+        [FieldOffset(12)] public readonly EncodingInDecimal FirstFileEncode;
+        [FieldOffset(16)] public readonly uint Unk0;
+        [FieldOffset(20)] public readonly ulong UncompressedSize2;
+        [FieldOffset(28)] public readonly ulong TotalPayloadSize2;
+        [FieldOffset(36)] public readonly uint EntryCount;
+        [FieldOffset(40)] public readonly uint Unk1;
+        [FieldOffset(44)] public readonly uint Unk2;
+        [FieldOffset(48)] public readonly uint Unk3;
+        [FieldOffset(52)] public readonly uint Unk4;
+        [FieldOffset(56)] public readonly uint Unk5;
+    }
 
-        public uint Unk0 { get; init; }
-
-        public ulong UncompressedSize2 { get; init; }
-        public ulong TotalPayloadSize2 { get; init; }
-        public uint EntryCount { get; init; }
-
-        public uint Unk1 { get; init; }
-        public uint Unk2 { get; init; }
-        public uint Unk3 { get; init; }
-        public uint Unk4 { get; init; }
-        public uint Unk5 { get; init; }
-
-        internal enum EncodingInDecimal : uint
-        {
-            Kraken6 = 8,
-            MermaidA = 9,
-            LeviathanC = 13
-        }
+    public enum EncodingInDecimal : uint
+    {
+        Kraken6 = 8,
+        MermaidA = 9,
+        LeviathanC = 13
     }
 }

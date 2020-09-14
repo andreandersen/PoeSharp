@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
 
 using PoeSharp.Filetypes.Bundle.Internal;
 
@@ -11,51 +9,22 @@ namespace PoeSharp.Filetypes.Bundle
 {
     public static class EncodedIndexBundle
     {
-        public static async IAsyncEnumerable<ReadOnlyMemory<byte>> EnumerateChunksAsync(
-            Stream stream,
-            [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            ValidateStream(stream);
-
-            _ = await stream.ReadAsync<IndexBin>();
-            var hdr = await stream.ReadAsync<IndexBinHead>();
-            var count = hdr.EntryCount;
-
-            var sizes = (await stream.ReadAsync<uint>((int)count)).ToArray();
-
-
-            var idx = 0;
-            while (idx < count && !cancellationToken.IsCancellationRequested)
-            {
-                var length = sizes[idx];
-                var mem = new byte[length].AsMemory();
-                var read = await stream.ReadAsync(mem, cancellationToken);
-
-                idx++;
-
-                yield return mem.Slice(0, read);
-            }
-        }
-
         public static IEnumerable<ReadOnlyMemory<byte>> EnumerateChunks(Stream stream)
         {
             ValidateStream(stream);
 
-            _ = stream.Read<IndexBin>();
             var hdr = stream.Read<IndexBinHead>();
             var count = hdr.EntryCount;
-
             var sizes = stream.Read<uint>((int)count).ToArray();
-            var idx = 0;
-
             var buffer = new byte[(int)sizes.Max()];
+
+            var idx = 0;
             while (idx < count)
             {
                 var length = sizes[idx];
                 var read = stream.Read(buffer, 0, (int)length);
 
                 idx++;
-                
                 yield return buffer.AsMemory(0, read);
             }
 
