@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace PoeSharp.Filetypes
 {
@@ -47,15 +48,18 @@ namespace PoeSharp.Filetypes
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte[] ReadBytes(this Stream stream, int length)
+        private static Span<byte> ReadBytes(this Stream stream, int length)
         {
-            var sharedBuffer = ArrayPool<byte>.Shared.Rent(length);
-            try
-            {
-                stream.Read(sharedBuffer, 0, length);
-                return sharedBuffer;
-            }
-            finally { ArrayPool<byte>.Shared.Return(sharedBuffer); }
+            var span = new Span<byte>(new byte[length]);
+            var read = stream.Read(span);
+            return span.Slice(0, read);
+        }
+
+        private static async Task<Memory<byte>> ReadBytesAsync(this Stream stream, int length)
+        {
+            var mem = new byte[length].AsMemory();
+            var read = await stream.ReadAsync(mem);
+            return mem.Slice(0, read);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -84,11 +88,29 @@ namespace PoeSharp.Filetypes
         public static unsafe Span<T> Read<T>(this Stream stream, int elements)
         {
             var size = Unsafe.SizeOf<T>();
+          
             var buffer = stream.ReadBytes(elements * size);
             fixed (void* ptr = &buffer[0])
             {
                 return new Span<T>(ptr, buffer.Length / size);
             }
+        }
+
+        private static unsafe Memory<T> ConvertMany<T>(this Memory<byte> mem)
+        {
+            var size = Unsafe.SizeOf<T>();
+            var buffer = mem.Span;
+            fixed (void* ptr = &buffer[0])
+            {
+                return new Span<T>(ptr, buffer.Length / size).ToArray();
+            }
+        }
+
+        public static async Task<Memory<T>> ReadAsync<T>(this Stream stream, int elements)
+        {
+            var size = Unsafe.SizeOf<T>();
+            var mem = await stream.ReadBytesAsync(size * elements);
+            return mem.ConvertMany<T>();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -98,5 +120,14 @@ namespace PoeSharp.Filetypes
             var buffer = stream.ReadBytes(size);
             return buffer.To<T>();
         }
+
+        public static async Task<T> ReadAsync<T>(this Stream stream)
+        {
+            var size = Unsafe.SizeOf<T>();
+            var buffer = await stream.ReadBytesAsync(size);
+            return buffer.Span.To<T>();
+        }
+
+
     }
 }
