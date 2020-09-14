@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -88,7 +87,7 @@ namespace PoeSharp.Filetypes
         public static unsafe Span<T> Read<T>(this Stream stream, int elements)
         {
             var size = Unsafe.SizeOf<T>();
-          
+
             var buffer = stream.ReadBytes(elements * size);
             fixed (void* ptr = &buffer[0])
             {
