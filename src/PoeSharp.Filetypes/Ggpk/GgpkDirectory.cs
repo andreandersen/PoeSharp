@@ -9,11 +9,11 @@ namespace PoeSharp.Filetypes.Ggpk
     [DebuggerDisplay("{Path}")]
     public sealed class GgpkDirectory
     {
-        private object _entriesLock = new object();
+        private readonly object _entriesLock = new object();
         private bool _hasEvaluatedEntries;
-        private ReadOnlyMemory<DirectoryEntry> _entries;
-        private Dictionary<string, GgpkDirectory> _directories;
-        private Dictionary<string, GgpkFile> _files;
+        private readonly ReadOnlyMemory<DirectoryEntry> _entries;
+        private readonly Dictionary<string, GgpkDirectory> _directories;
+        private readonly Dictionary<string, GgpkFile> _files;
         internal GgpkFileSystem Root { get; }
 
         public string Name { get; }

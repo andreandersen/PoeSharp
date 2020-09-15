@@ -45,10 +45,8 @@ namespace PoeSharp.Filetypes.Ggpk
             if (!file.Directory.Exists)
                 file.Directory.Create();
 
-            using (var fs = file.Exists ? file.OpenWrite() : file.Create())
-            {
-                CopyToStream(fs);
-            }
+            using var fs = file.Exists ? file.OpenWrite() : file.Create();
+            CopyToStream(fs);
         }
     }
 }

@@ -19,8 +19,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
                 .Slice(0, 32)
                 .ToArray();
 
-            Name = bytes
-                .Slice(32, bytes.Length - 34)
+            Name = bytes[32..^2]
                 .FromUnicodeBytesToUtf8()
                 .ToArray();
 

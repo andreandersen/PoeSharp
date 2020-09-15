@@ -20,19 +20,14 @@ namespace PoeSharp.Filetypes.Ggpk
         internal static IRecord ReadRecord(this FileStream stream)
         {
             var header = stream.ReadRecordHeader();
-            switch (header.Type)
+            return header.Type switch
             {
-                case RecordType.File:
-                    return new FileRecord(stream, header.Length);
-                case RecordType.Free:
-                    return new FreeRecord(stream, header.Length);
-                case RecordType.Directory:
-                    return new DirectoryRecord(stream, header.Length);
-                case RecordType.Ggpk:
-                    return new GgpkRecord(stream, header.Length);
-                default:
-                    throw ParseException.GgpkParseFailure;
-            }
+                RecordType.File => new FileRecord(stream, header.Length),
+                RecordType.Free => new FreeRecord(stream, header.Length),
+                RecordType.Directory => new DirectoryRecord(stream, header.Length),
+                RecordType.Ggpk => new GgpkRecord(stream, header.Length),
+                _ => throw ParseException.GgpkParseFailure,
+            };
         }
     }
 }

@@ -45,21 +45,19 @@ namespace PoeSharp.Filetypes.Dat
             }
 
             byte[] data = dataStart == -1 ?
-                new byte[0] :
-                bytes.Slice(dataStart).ToArray();
+                Array.Empty<byte>() :
+                bytes[dataStart..].ToArray();
 
             return new RawDatFile(name, rows, data);
         }
 
         public static RawDatFile CreateFromGgpkFile(GgpkFile ggpkFile)
         {
-            using (var ms = new MemoryStream())
-            {
-                ggpkFile.CopyToStream(ms);
-                ms.Position = 0;
+            using var ms = new MemoryStream();
+            ggpkFile.CopyToStream(ms);
+            ms.Position = 0;
 
-                return CreateFromStream(ggpkFile.Name, ms, (int)ms.Length);
-            }
+            return CreateFromStream(ggpkFile.Name, ms, (int)ms.Length);
         }
     }
 }

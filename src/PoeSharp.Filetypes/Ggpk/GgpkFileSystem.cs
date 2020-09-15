@@ -47,10 +47,11 @@ namespace PoeSharp.Filetypes.Ggpk
                 }
             }
 
-            if (dirRecord == null)
-                throw ParseException.GgpkParseFailure;
-
-            return GgpkDirectory.CreateRootDirectory(in dirRecord, this);
+            return dirRecord switch
+            {
+                null => throw ParseException.GgpkParseFailure,
+                _ => GgpkDirectory.CreateRootDirectory(in dirRecord, this),
+            };
         }
     }
 }

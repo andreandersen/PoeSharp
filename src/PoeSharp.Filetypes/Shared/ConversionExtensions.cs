@@ -28,12 +28,7 @@ namespace PoeSharp.Filetypes
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ReadOnlySpan<char> FromUnicodeBytesToUtf8(this in Span<byte> utf16bytes)
         {
-            if (utf16bytes.Length == 0)
-            {
-                return ReadOnlySpan<char>.Empty;
-            }
-
-            return Encoding.Unicode.GetString(utf16bytes);
+            return utf16bytes.Length == 0 ? ReadOnlySpan<char>.Empty : Encoding.Unicode.GetString(utf16bytes);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

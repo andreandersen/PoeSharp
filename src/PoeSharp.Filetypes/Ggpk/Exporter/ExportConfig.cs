@@ -4,8 +4,8 @@ namespace PoeSharp.Filetypes.Ggpk.Exporter
 {
     public class ExportConfig
     {
-        private static int DefaultEnumTasks = Math.Max(1, Environment.ProcessorCount - 2);
-        private static int DefaultExportTasks = 64;
+        private static readonly int DefaultEnumTasks = Math.Max(1, Environment.ProcessorCount - 2);
+        private static readonly int DefaultExportTasks = 64;
 
         public ExportConfig(string exportPath, bool shallow = false)
             : this(exportPath, DefaultEnumTasks, DefaultExportTasks, shallow) {}

@@ -50,8 +50,8 @@ namespace PoeSharp.Filetypes.Ggpk.Exporter
                 .Select(_ => Task.Factory.StartNew(() =>
                 {
                     while (
-                        !status.IsEnumerationDone || 
-                        status.FileQueue.Count > 0)
+                        !status.IsEnumerationDone ||
+                        !status.FileQueue.IsEmpty)
                     {
                         if (!status.FileQueue.TryDequeue(out var file))
                             continue;

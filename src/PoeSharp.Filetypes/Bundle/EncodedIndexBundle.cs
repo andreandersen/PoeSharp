@@ -1,46 +1,83 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-
-using PoeSharp.Filetypes.Bundle.Internal;
+using System.Runtime.InteropServices;
 
 namespace PoeSharp.Filetypes.Bundle
 {
     public static class EncodedIndexBundle
     {
-        public static IEnumerable<ReadOnlyMemory<byte>> EnumerateChunks(Stream stream)
+        private const int MaxChunkSize = 256 * 1024;
+
+        public static IEnumerable<ReadOnlyMemory<byte>>
+            PrepareIndexForDecompression(Stream src)
         {
-            ValidateStream(stream);
+            ValidateSourceStream(src);
 
-            var hdr = stream.Read<IndexBinHead>();
+            var hdr = src.Read<IndexBinHead>();
             var count = hdr.EntryCount;
-            var sizes = stream.Read<uint>((int)count).ToArray();
-            var buffer = new byte[(int)sizes.Max()];
+            var lastEntry = count - 1;
+            var sizes = src.Read<uint>((int)count).ToArray();
 
-            var idx = 0;
-            while (idx < count)
+            for (var i = 0; i < sizes.Length; i++)
             {
-                var length = sizes[idx];
-                var read = stream.Read(buffer, 0, (int)length);
+                var sz = (int)sizes[i];
+                var buf = new byte[sz + 8];
 
-                idx++;
-                yield return buffer.AsMemory(0, read);
+                var decSize = i == lastEntry ? hdr.UncompressedSize - (MaxChunkSize * lastEntry) : MaxChunkSize;
+
+                Array.Copy(BitConverter.GetBytes((ulong)decSize), buf, 8);
+
+                var rc = src.Read(buf, 8, sz);
+                yield return buf.AsMemory(0, rc + 8);
             }
-
         }
 
-        private static void ValidateStream(Stream stream)
+        private static void ValidateSourceStream(Stream source)
         {
-            _ = stream ?? throw new ArgumentNullException(
-                nameof(stream), "Stream is null");
+            _ = source ?? throw new ArgumentNullException(
+                nameof(source), "Stream is null");
 
-            if (!stream.CanRead)
+            if (!source.CanRead)
             {
                 throw new ArgumentException(
-                    "Stream cannot be read", nameof(stream));
+                    "Stream cannot be read", nameof(source));
             }
         }
+
+        private static void ValidateDestinationStream(Stream destination)
+        {
+            _ = destination ?? throw new ArgumentNullException(
+                nameof(destination), "Stream is null");
+
+            if (!destination.CanWrite)
+                throw new ArgumentException("Stream cannot be written to", nameof(destination));
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 60)]
+    public readonly struct IndexBinHead
+    {
+        [FieldOffset(00)] public readonly uint UncompressedSize;
+        [FieldOffset(04)] public readonly uint TotalPayloadSize;
+        [FieldOffset(08)] public readonly uint HeadPayloadSize;
+        [FieldOffset(12)] public readonly EncodingInDecimal FirstFileEncode;
+        [FieldOffset(16)] public readonly uint Unk0;
+        [FieldOffset(20)] public readonly ulong UncompressedSize2;
+        [FieldOffset(28)] public readonly ulong TotalPayloadSize2;
+        [FieldOffset(36)] public readonly uint EntryCount;
+        [FieldOffset(40)] public readonly uint Unk1;
+        [FieldOffset(44)] public readonly uint Unk2;
+        [FieldOffset(48)] public readonly uint Unk3;
+        [FieldOffset(52)] public readonly uint Unk4;
+        [FieldOffset(56)] public readonly uint Unk5;
+    }
+
+    public enum EncodingInDecimal : uint
+    {
+        Kraken6 = 8,
+        MermaidA = 9,
+        LeviathanC = 13
     }
 }
 
