@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace PoeSharp.Filetypes.Bundle
@@ -9,11 +10,9 @@ namespace PoeSharp.Filetypes.Bundle
     {
         private const int MaxChunkSize = 256 * 1024;
 
-        public static IEnumerable<ReadOnlyMemory<byte>>
-            PrepareIndexForDecompression(Stream src)
+        public static void PrepareIndexForDecompression2(Stream src, Stream dst)
         {
             ValidateSourceStream(src);
-
             var hdr = src.Read<IndexBinHead>();
             var count = hdr.EntryCount;
             var lastEntry = count - 1;
@@ -22,14 +21,14 @@ namespace PoeSharp.Filetypes.Bundle
             for (var i = 0; i < sizes.Length; i++)
             {
                 var sz = (int)sizes[i];
-                var buf = new byte[sz + 8];
+                var buf = new byte[sz];
 
                 var decSize = i == lastEntry ? hdr.UncompressedSize - (MaxChunkSize * lastEntry) : MaxChunkSize;
+                var rc = src.Read(buf, 0, sz);
 
-                Array.Copy(BitConverter.GetBytes((ulong)decSize), buf, 8);
-
-                var rc = src.Read(buf, 8, sz);
-                yield return buf.AsMemory(0, rc + 8);
+                var dstArr = new byte[decSize + 64];
+                _ = LibOoz.Ooz_Decompress(buf, buf.Length, dstArr, (int)decSize);
+                dst.Write(dstArr, 0, (int)decSize);
             }
         }
 

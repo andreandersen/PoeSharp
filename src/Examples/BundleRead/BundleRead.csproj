@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="OozSharp" Version="1.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\PoeSharp.Filetypes\PoeSharp.Filetypes.csproj" />
   </ItemGroup>
 
