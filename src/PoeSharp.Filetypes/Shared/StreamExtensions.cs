@@ -127,6 +127,27 @@ namespace PoeSharp.Filetypes
             return buffer.Span.To<T>();
         }
 
+        public static Stream ValidateSourceStream(this Stream source)
+        {
+            _ = source ?? throw new ArgumentNullException(
+                nameof(source), "Stream is null");
+
+            return !source.CanRead
+                ? throw new ArgumentException(
+                    "Stream cannot be read", nameof(source))
+                : source;
+        }
+
+        public static Stream ValidateDestinationStream(this Stream destination)
+        {
+            _ = destination ?? throw new ArgumentNullException(
+                nameof(destination), "Stream is null");
+
+            return !destination.CanWrite ? 
+                throw new ArgumentException(
+                    "Stream cannot be written to", nameof(destination)) 
+                : destination;
+        }
 
     }
 }

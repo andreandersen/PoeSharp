@@ -3,11 +3,11 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <AnalysisLevel>preview</AnalysisLevel>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OozSharp" Version="1.1.2" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.12.1" />
   </ItemGroup>
 
   <ItemGroup>

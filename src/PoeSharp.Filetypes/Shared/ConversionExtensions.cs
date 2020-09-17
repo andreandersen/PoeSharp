@@ -11,7 +11,7 @@ namespace PoeSharp.Filetypes
         {
             fixed (byte* b = &buf[0])
             {
-                return Unsafe.ReadUnaligned<T>(b);
+                return Unsafe.Read<T>(b);
             }
         }
 
@@ -20,7 +20,7 @@ namespace PoeSharp.Filetypes
         {
             fixed (byte* b = &buf[0])
             {
-                return Unsafe.ReadUnaligned<T>(b);
+                return Unsafe.Read<T>(b);
             }
         }
 
