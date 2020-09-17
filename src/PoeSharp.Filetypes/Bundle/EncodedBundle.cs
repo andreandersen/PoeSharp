@@ -1,6 +1,5 @@
 ﻿using System.Buffers;
 using System.IO;
-using System.Linq;
 
 namespace PoeSharp.Filetypes.Bundle
 {
@@ -26,10 +25,15 @@ namespace PoeSharp.Filetypes.Bundle
 
             // After the header comes a list of uints
             // representing the chunks' uncompressed sizes
-            var sizes = src.Read<uint>(count).ToArray();
+            var sizes = src.Read<uint>(count);
 
             // Determine the biggest chunk to reserve memory
-            var maxSize = (int)sizes.Max();
+            int maxSize = 0;
+            foreach (var s in sizes)
+            {
+                if (maxSize < s)
+                    maxSize = (int)s;
+            }
 
             // Rent some space
             using var bufRent = MemoryPool<byte>.Shared.Rent(MaxChunkSize);
