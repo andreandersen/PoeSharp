@@ -36,8 +36,8 @@ namespace PoeSharp.Filetypes.Bundle
             }
 
             // Rent some space
-            using var bufRent = MemoryPool<byte>.Shared.Rent(MaxChunkSize);
-            using var dstRent = MemoryPool<byte>.Shared.Rent(maxSize + SafeSpace);
+            using var bufRent = MemoryPool<byte>.Shared.Rent(MaxChunkSize + SafeSpace);
+            using var dstRent = MemoryPool<byte>.Shared.Rent(MaxChunkSize + SafeSpace);
 
             // Decompress each chunk separately
             for (var i = 0; i < sizes.Length; i++)

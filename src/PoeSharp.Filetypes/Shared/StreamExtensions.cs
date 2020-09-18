@@ -127,6 +127,13 @@ namespace PoeSharp.Filetypes
             return buffer.Span.To<T>();
         }
 
+        public static ReadOnlySpan<char> ReadUtf8String(this Stream stream, int length)
+        {
+            Span<byte> span = stackalloc byte[length];
+            stream.Read(span);
+            return System.Text.Encoding.UTF8.GetString(span);
+        }
+
         public static Stream ValidateSourceStream(this Stream source)
         {
             _ = source ?? throw new ArgumentNullException(
