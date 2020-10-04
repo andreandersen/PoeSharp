@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+using Microsoft.Toolkit.HighPerformance.Extensions;
+
 namespace PoeSharp.Filetypes.Ggpk.Records
 {
     public sealed class FreeRecord : IRecord
@@ -9,7 +11,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
         {
             Length = length;
             Offset = stream.Position - 8;
-            NextFreeRecord = stream.ReadInt64();
+            NextFreeRecord = stream.Read<long>();
 
             stream.Seek(length - 16, SeekOrigin.Current);
         }

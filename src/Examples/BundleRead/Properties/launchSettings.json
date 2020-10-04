@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BundleRead": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

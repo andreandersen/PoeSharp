@@ -1,11 +1,15 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
+
+using PoeSharp.Filetypes.BuildingBlocks;
 using PoeSharp.Filetypes.Ggpk.Records;
 
 namespace PoeSharp.Filetypes.Ggpk
 {
     [DebuggerDisplay("{Path}")]
-    public sealed class GgpkFile
+    public sealed class GgpkFile : IFile
     {
         private readonly long _offset;
 
@@ -14,7 +18,9 @@ namespace PoeSharp.Filetypes.Ggpk
         public string Path { get; }
         public long Size { get; }
 
-        internal GgpkFile(in FileRecord fileRecord, in GgpkDirectory parent)
+        IDirectory IFileSystemEntry.Parent => Parent;
+
+        internal GgpkFile(FileRecord fileRecord, GgpkDirectory parent)
         {
             Parent = parent;
             Name = fileRecord.Name.ToString();
@@ -23,13 +29,13 @@ namespace PoeSharp.Filetypes.Ggpk
             _offset = fileRecord.DataOffset;
         }
 
-        public void CopyToStream(in Stream stream)
+        public void CopyToStream(Stream stream)
         {
             var source = Parent.Root.Stream;
             source.CopyTo(stream, _offset, Size);
         }
 
-        public MemoryStream GetStream()
+        public Stream GetStream()
         {
             var source = Parent.Root.Stream;
             var dest = new MemoryStream();
@@ -38,15 +44,13 @@ namespace PoeSharp.Filetypes.Ggpk
             return dest;
         }
 
-        public void Extract(string path)
+        public void CopyToStream(Stream destinationStream, long start = 0, long length = 0)
         {
-            var file = new FileInfo(path);
 
-            if (!file.Directory.Exists)
-                file.Directory.Create();
-
-            using var fs = file.Exists ? file.OpenWrite() : file.Create();
-            CopyToStream(fs);
         }
+
+        public Span<byte> AsSpan(long start = 0, long length = 0) => throw new NotImplementedException();
+        
+        public Task<Stream> GetStreamAsync() => throw new NotImplementedException();
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace PoeSharp.Filetypes.Bundle
+namespace PoeSharp.Filetypes.Bundle.Internal
 {
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     public readonly struct EncodedBundleHeader

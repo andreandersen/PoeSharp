@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
+
+using Microsoft.Toolkit.HighPerformance.Extensions;
 
 namespace PoeSharp.Filetypes.Ggpk.Records
 {
@@ -11,7 +12,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
             Offset = stream.Position - 8;
             Length = length;
 
-            var nameLength = stream.ReadInt32();
+            var nameLength = stream.Read<int>();
             Span<byte> bytes = new byte[32 + (nameLength * 2)];
             stream.Read(bytes);
 

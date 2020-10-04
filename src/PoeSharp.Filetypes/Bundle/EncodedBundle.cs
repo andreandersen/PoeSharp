@@ -1,5 +1,10 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using System.IO;
+
+using Microsoft.Toolkit.HighPerformance.Extensions;
+
+using PoeSharp.Filetypes.Bundle.Internal;
 
 namespace PoeSharp.Filetypes.Bundle
 {
@@ -25,15 +30,8 @@ namespace PoeSharp.Filetypes.Bundle
 
             // After the header comes a list of uints
             // representing the chunks' uncompressed sizes
-            var sizes = src.Read<uint>(count);
-
-            // Determine the biggest chunk to reserve memory
-            int maxSize = 0;
-            foreach (var s in sizes)
-            {
-                if (maxSize < s)
-                    maxSize = (int)s;
-            }
+            using var sizesOwner = src.Read<uint>(count);
+            var sizes = sizesOwner.Span;
 
             // Rent some space
             using var bufRent = MemoryPool<byte>.Shared.Rent(MaxChunkSize + SafeSpace);
@@ -65,7 +63,13 @@ namespace PoeSharp.Filetypes.Bundle
             }
         }
 
-        public static MemoryStream ReadAndDecompressBundle(this Stream stream)
+        public static Span<byte> DecompressBundle(this Stream src)
+        {
+            using var stream = src.DecompressBundleToStream();
+            return stream.ToArray().AsSpan();
+        }
+
+        public static MemoryStream DecompressBundleToStream(this Stream stream)
         {
             var dst = new MemoryStream();
             DecompressToStream(stream, dst);

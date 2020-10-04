@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace PoeSharp.Filetypes.Bundle
+namespace PoeSharp.Filetypes.Bundle.Internal
 {
     internal unsafe class LibOoz
     {

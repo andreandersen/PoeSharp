@@ -5,7 +5,9 @@ using PoeSharp.Filetypes.Ggpk;
 
 namespace PoeSharp.Filetypes.Dat
 {
-    public class RawDatFile
+    public record Point(int X, int Y);
+
+    public class OldRawDatFile
     {
         private static readonly byte[] s_dataSeparator =
             BitConverter.GetBytes(0xbbbbbbbbbbbbbbbb);
@@ -14,7 +16,7 @@ namespace PoeSharp.Filetypes.Dat
         public ReadOnlyMemory<byte> Data { get; }
         public string Name { get; }
 
-        private RawDatFile(
+        private OldRawDatFile(
             string name,
             ReadOnlyMemory<ReadOnlyMemory<byte>> rows,
             ReadOnlyMemory<byte> data)
@@ -24,7 +26,7 @@ namespace PoeSharp.Filetypes.Dat
             Data = data;
         }
 
-        public static RawDatFile CreateFromStream(string name, Stream stream, int length)
+        public static OldRawDatFile CreateFromStream(string name, Stream stream, int length)
         {
             Span<byte> bytes = new byte[length];
             stream.Read(bytes);
@@ -48,10 +50,10 @@ namespace PoeSharp.Filetypes.Dat
                 Array.Empty<byte>() :
                 bytes[dataStart..].ToArray();
 
-            return new RawDatFile(name, rows, data);
+            return new OldRawDatFile(name, rows, data);
         }
 
-        public static RawDatFile CreateFromGgpkFile(GgpkFile ggpkFile)
+        public static OldRawDatFile CreateFromGgpkFile(GgpkFile ggpkFile)
         {
             using var ms = new MemoryStream();
             ggpkFile.CopyToStream(ms);
