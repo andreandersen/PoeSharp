@@ -29,11 +29,11 @@ namespace PoeSharp.Filetypes.Ggpk
             _offset = fileRecord.DataOffset;
         }
 
-        public void CopyToStream(Stream stream)
-        {
-            var source = Parent.Root.Stream;
-            source.CopyTo(stream, _offset, Size);
-        }
+        //public void CopyToStream(Stream stream)
+        //{
+        //    var source = Parent.Root.Stream;
+        //    source.CopyTo(stream, _offset, Size);
+        //}
 
         public Stream GetStream()
         {
@@ -46,7 +46,11 @@ namespace PoeSharp.Filetypes.Ggpk
 
         public void CopyToStream(Stream destinationStream, long start = 0, long length = 0)
         {
+            if (length == 0)
+                length = Size;
 
+            var source = Parent.Root.Stream;
+            source.CopyTo(destinationStream, _offset + start, length);
         }
 
         public Span<byte> AsSpan(long start = 0, long length = 0) => throw new NotImplementedException();

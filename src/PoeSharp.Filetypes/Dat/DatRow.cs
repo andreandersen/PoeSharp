@@ -1,27 +1,30 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
-using PoeSharp.Filetypes.BuildingBlocks;
 using PoeSharp.Filetypes.Dat.Specification;
 
 namespace PoeSharp.Filetypes.Dat
 {
-    public class DatRow : ReadOnlyDictionaryBase<string, DatValue>
+    public class DatRow
     {
         private static readonly byte[] StringNullTerminator = { 0, 0, 0, 0 };
+
+        public ImmutableDictionary<string, DatValue> Columns { get; }
 
         public DatRow(
             Span<byte> rowData, Span<byte> data,
             DatSpecification specification, DatFileIndex index)
         {
-            Underlying = new Dictionary<string, DatValue>();
-            var offset = 0;
 
-            var totalLength = specification.Fields.Sum(p => p.Value.DatType.TypeCode.GetByteSize());
+            var dictBuilder = ImmutableDictionary.CreateBuilder<string, DatValue>();
+            var offset = 0;
 
             foreach (var field in specification.Fields)
             {
+                if (offset >= rowData.Length)
+                    break;
+
                 var k = field.Key;
                 var v = field.Value;
 
@@ -34,6 +37,10 @@ namespace PoeSharp.Filetypes.Dat
                     {
                         var elements = (int)rowData.Slice(offset, 4).To<uint>();
                         offset += 4;
+
+                        if (offset >= rowData.Length)
+                            break;
+
                         dataOffset = (int)rowData.Slice(offset, 4).To<uint>();
                         offset += 4;
 
@@ -45,6 +52,12 @@ namespace PoeSharp.Filetypes.Dat
 
                         value = ReadList(v.DatType.TypeCode, dataOffset,
                             elements, data);
+                    }
+                    else if (v.DatType.IsGenericReference)
+                    {
+                        var ptrData = rowData.Slice(offset, 4).To<uint>();
+                        value = ptrData.IsNullValue() ? -1 : (object)(int)ptrData;
+                        offset += 4;
                     }
                     else
                     {
@@ -87,13 +100,15 @@ namespace PoeSharp.Filetypes.Dat
                 }
 
                 var datValue = new DatValue(v, value, index);
-                Underlying.Add(k, datValue);
+                dictBuilder.Add(k, datValue);
             }
+
+            Columns = dictBuilder.ToImmutable();
         }
 
         private static object[] ReadList(
             TypeCode typeCode, int start,
-            int elements,Span<byte> data)
+            int elements, Span<byte> data)
         {
             var ret = new object[elements];
 
@@ -124,10 +139,10 @@ namespace PoeSharp.Filetypes.Dat
         }
 
         public T Value<T>(string key) =>
-            (T)Underlying[key].Value;
+            (T)Columns[key].Value;
 
         public object Value(string key) =>
-            Underlying[key].Value;
+            Columns[key].Value;
 
     }
 }

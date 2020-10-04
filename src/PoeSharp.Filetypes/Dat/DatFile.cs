@@ -1,15 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 
 using PoeSharp.Filetypes.BuildingBlocks;
 using PoeSharp.Filetypes.Dat.Specification;
 
 namespace PoeSharp.Filetypes.Dat
 {
-    public class DatFile : IReadOnlyList<DatRow>
+    public class DatFile
     {
         private static readonly byte[] DataSeparator =
             BitConverter.GetBytes(0xbbbbbbbbbbbbbbbb);
@@ -33,7 +31,7 @@ namespace PoeSharp.Filetypes.Dat
             if (!lazyLoad) Load();
         }
 
-        private IReadOnlyList<DatRow> Rows
+        public IReadOnlyList<DatRow> Rows
         {
             get
             {
@@ -52,8 +50,6 @@ namespace PoeSharp.Filetypes.Dat
 
         public int Count => Rows.Count;
 
-        public IEnumerator<DatRow> GetEnumerator() => Rows.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => Rows.GetEnumerator();
 
         private void Load()
         {

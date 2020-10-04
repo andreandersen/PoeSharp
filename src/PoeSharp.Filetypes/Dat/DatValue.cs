@@ -12,7 +12,7 @@ namespace PoeSharp.Filetypes.Dat
         {
             Specification = fieldData;
 
-            if (!string.IsNullOrEmpty(fieldData.Key))
+            if (!string.IsNullOrEmpty(fieldData.Key) && fieldData.DatType.TypeCode != TypeCode.String)
             {
                 switch (fieldValue)
                 {
@@ -26,7 +26,7 @@ namespace PoeSharp.Filetypes.Dat
                             break;
                         }
 
-                    case ulong or int or uint:
+                    case ulong or int or uint or long:
                         _fieldValue = fieldValue.IsNullValue() ?
                             new Lazy<object>(() => null) :
                             new Lazy<object>(() => datIndex[fieldData.Key][Convert.ToInt32(fieldValue)]);
