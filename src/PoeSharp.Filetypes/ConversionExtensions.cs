@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace PoeSharp.Filetypes
@@ -10,6 +11,16 @@ namespace PoeSharp.Filetypes
         public static T To<T>(this Span<byte> buf)
         {
             return Unsafe.As<byte, T>(ref buf[0]);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T ConsumeTo<T>(this ref Span<byte> buf)
+        {
+            var size = Unsafe.SizeOf<T>();
+            var t = buf.Slice(0, size);
+            var ret = Unsafe.As<byte, T>(ref t[0]);
+            buf = buf.Slice(size);
+            return ret;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

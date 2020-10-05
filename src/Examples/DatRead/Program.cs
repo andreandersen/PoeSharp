@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading;
 
 using PoeSharp.Filetypes.BuildingBlocks;
 using PoeSharp.Filetypes.Dat;
@@ -7,25 +9,33 @@ using PoeSharp.Filetypes.Dat.Specification;
 
 namespace DatRead
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-
-            var datSpecIdx = DetSpecificationIndex.Default;
-
-            var idx = new DatFileIndex((DiskDirectory)@"C:\noindex\old\Data", datSpecIdx);
+            Thread.Sleep(1500);
 
             var sw = Stopwatch.StartNew();
-            
-            var dat = idx["BaseItemTypes.dat"];
-            var firstRow = dat[0];
+            var datSpecIdx = DetSpecificationIndex.Default;
+            DiskDirectory directory = @"C:\noindex\3124\Bundles2\Bundles2\Data";
+
+            var dats = new DatFileIndex(directory, datSpecIdx, false);
+
+            var dat = dats["BaseItemTypes.dat"];
+            var row = dat[0];
 
             var elapsed = sw.Elapsed;
 
             Console.WriteLine(elapsed);
+        }
 
+        private static DatRow GetRows(DetSpecificationIndex datSpecIdx, DiskDirectory directory)
+        {
+            var dats = new DatFileIndex(directory, datSpecIdx, false);
+            var dat = dats["BaseItemTypes.dat"];
+            var row = dat[0];
+
+            return row;
         }
     }
 }

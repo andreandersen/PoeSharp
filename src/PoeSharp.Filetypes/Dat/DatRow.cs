@@ -1,6 +1,12 @@
 using System;
+using System.Buffers;
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+using Microsoft.Toolkit.HighPerformance.Extensions;
 
 using PoeSharp.Filetypes.Dat.Specification;
 
@@ -14,19 +20,38 @@ namespace PoeSharp.Filetypes.Dat
 
         public DatRow(
             Span<byte> rowData, Span<byte> data,
-            DatSpecification specification, DatFileIndex index)
+            DatSpecification spec, DatFileIndex index)
+        {
+            var buf = rowData;
+            foreach (var (name, field) in spec.Fields)
+            {
+                var dt = field.DatType;
+                IDatValue val = (dt.IsList, dt.IsReference) switch
+                {
+                    (false, false)  when dt.TypeCode is not TypeCode.String => SimpleDatValue.Create(ref buf, dt.TypeCode),
+                    (false, false)  when dt.TypeCode is TypeCode.String => new StringDatValue(ref buf),
+                    (false, true)   => new ReferencedDatValue(ref buf, data, index, field),
+                    (true, _)       => ListDatValue.Create(ref buf, data, index, field),
+                    _ => throw new Exception()
+                };
+            }
+        }
+
+        public DatRow(
+            Span<byte> rowData, Span<byte> data,
+            DatSpecification specification, DatFileIndex index, bool old)
         {
 
             var dictBuilder = ImmutableDictionary.CreateBuilder<string, DatValue>();
+            var d = new Dictionary<string, ValueType>();
+            ValueType x = 4;
+
             var offset = 0;
 
-            foreach (var field in specification.Fields)
+            foreach (var (k, v) in specification.Fields)
             {
                 if (offset >= rowData.Length)
                     break;
-
-                var k = field.Key;
-                var v = field.Value;
 
                 object value;
                 if (v.DatType.IsReference)
@@ -46,7 +71,6 @@ namespace PoeSharp.Filetypes.Dat
 
                         if (offset.IsNullValue() || elements.IsNullValue())
                         {
-                            value = Array.Empty<object>();
                             continue;
                         }
 
@@ -56,7 +80,7 @@ namespace PoeSharp.Filetypes.Dat
                     else if (v.DatType.IsGenericReference)
                     {
                         var ptrData = rowData.Slice(offset, 4).To<uint>();
-                        value = ptrData.IsNullValue() ? -1 : (object)(int)ptrData;
+                        value = ptrData.IsNullValue() ? -1 : ptrData;
                         offset += 4;
                     }
                     else
@@ -66,7 +90,6 @@ namespace PoeSharp.Filetypes.Dat
 
                         if (dataOffset.IsNullValue())
                         {
-                            value = null;
                             continue;
                         }
 
