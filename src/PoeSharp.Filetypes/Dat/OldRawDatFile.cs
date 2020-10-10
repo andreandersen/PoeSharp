@@ -5,8 +5,6 @@ using PoeSharp.Filetypes.Ggpk;
 
 namespace PoeSharp.Filetypes.Dat
 {
-    public record Point(int X, int Y);
-
     public class OldRawDatFile
     {
         private static readonly byte[] s_dataSeparator =

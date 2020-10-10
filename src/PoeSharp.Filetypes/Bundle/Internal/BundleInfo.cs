@@ -13,7 +13,7 @@ namespace PoeSharp.Filetypes.Bundle.Internal
         public readonly int UncompressedSize;
         public readonly string Name;
 
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is BundleInfo info && Equals(info);
 
         public bool Equals(BundleInfo other) =>

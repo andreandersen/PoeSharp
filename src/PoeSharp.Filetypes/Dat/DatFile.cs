@@ -19,7 +19,7 @@ namespace PoeSharp.Filetypes.Dat
 
         private readonly DatSpecification _spec;
         private bool _isLoaded;
-        private ImmutableList<DatRow> _rows;
+        private DatRow[] _rows;
 
         internal DatFile(IFile source, DatSpecification specification, DatFileIndex index,
             bool lazyLoad = true)
@@ -69,7 +69,7 @@ namespace PoeSharp.Filetypes.Dat
                 rows[r] = datRow;
             }
 
-            _rows = ImmutableList.Create(rows);
+            _rows = rows;
             _isLoaded = true;
         }
     }

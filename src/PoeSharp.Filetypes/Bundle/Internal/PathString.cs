@@ -25,7 +25,7 @@ namespace PoeSharp.Filetypes.Bundle.Internal
         public bool Equals(PathString other) => 
             Hash == other.Hash;
 
-        public override bool Equals(object obj) => 
+        public override bool Equals(object? obj) => 
             obj is PathString other && Equals(other);
 
         public override int GetHashCode() => Hash.GetHashCode();

@@ -24,7 +24,7 @@ namespace PoeSharp.Filetypes.BuildingBlocks
         /// </summary>
         /// <param name="index"></param>
         /// <returns>Returns the FileSystemEntry or null when not found.</returns>
-        IFileSystemEntry this[string index] { get; }
+        IFileSystemEntry? this[string index] { get; }
 
         void CopyTo(IWritableDirectory destination);
     }

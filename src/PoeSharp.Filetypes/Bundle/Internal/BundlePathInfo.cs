@@ -14,7 +14,7 @@ namespace PoeSharp.Filetypes.Bundle.Internal
         public readonly int PayloadSize;
         public readonly int PayloadRecursiveSize;
 
-        public override bool Equals(object obj) =>
+        public override bool Equals(object? obj) =>
             obj is BundlePathInfo representation && Equals(representation);
 
         public bool Equals(BundlePathInfo other) => Hash == other.Hash;

@@ -18,7 +18,7 @@ namespace PoeSharp.Filetypes.Ggpk
         internal GgpkFileSystem Root { get; }
 
         public string Name { get; }
-        public IDirectory Parent { get; }
+        public IDirectory? Parent { get; }
         public string Path { get; }
 
         public DirectoryRecord Record { get; }
@@ -48,13 +48,13 @@ namespace PoeSharp.Filetypes.Ggpk
 
         private GgpkDirectory(
                     DirectoryRecord dirRecord,
-                    GgpkDirectory parent,
-                    GgpkFileSystem root = null)
+                    GgpkDirectory? parent = null,
+                    GgpkFileSystem? root = null)
         {
             Record = dirRecord;
             Name = dirRecord.Name.ToString();
             Parent = parent;
-            Root = root ?? parent.Root;
+            Root = root ?? parent?.Root ?? null;
             Path = Parent != null ?
                 System.IO.Path.Combine(parent.Path, Name) :
                 string.Empty;

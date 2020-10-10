@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
-    <PackageReference Include="Microsoft.DependencyValidation.Analyzers" Version="0.11.0" />
     <PackageReference Include="System.CommandLine.Rendering" Version="0.3.0-alpha.20427.1" />
   </ItemGroup>
 

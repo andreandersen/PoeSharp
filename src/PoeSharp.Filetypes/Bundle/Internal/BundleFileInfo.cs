@@ -11,7 +11,7 @@ namespace PoeSharp.Filetypes.Bundle.Internal
         public readonly uint FileOffset;
         public readonly uint FileSize;
 
-        public override bool Equals(object obj) => obj is BundleFileInfo file && Equals(file);
+        public override bool Equals(object? obj) => obj is BundleFileInfo file && Equals(file);
         public bool Equals(BundleFileInfo other) => Hash == other.Hash;
         public override int GetHashCode() => HashCode.Combine(Hash);
 

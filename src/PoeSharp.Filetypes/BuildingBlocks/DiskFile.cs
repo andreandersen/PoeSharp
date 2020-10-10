@@ -9,7 +9,7 @@ namespace PoeSharp.Filetypes.BuildingBlocks
     {
         private const int WriteStreamBuffer = 80 * 1024;
 
-        public DiskFile(string name, DiskDirectory diskDirectory = null)
+        public DiskFile(string name, DiskDirectory? diskDirectory = null)
         {
             var p = EnsureNameAndPathSeparation(name, diskDirectory);
 
@@ -109,7 +109,7 @@ namespace PoeSharp.Filetypes.BuildingBlocks
         public Task<Stream> GetStreamAsync() => Task.FromResult(GetStream());
 
         private (string Name, DiskDirectory Path) EnsureNameAndPathSeparation(string name,
-            DiskDirectory dir)
+            DiskDirectory? dir)
         {
             var fi = new FileInfo(IoPath.Combine(dir?.Path ?? "", name));
             return dir == null || fi.Name != name ? (fi.Name, new DiskDirectory(fi.DirectoryName)) : (name, dir);

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace PoeSharp.Filetypes
@@ -8,9 +8,12 @@ namespace PoeSharp.Filetypes
     public static class ConversionExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T To<T>(this Span<byte> buf)
+        public static T To<T>(this Span<byte> buf) => Unsafe.As<byte, T>(ref buf[0]);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T To<T>(this ReadOnlySpan<byte> buf)
         {
-            return Unsafe.As<byte, T>(ref buf[0]);
+            return Unsafe.As<byte, T>(ref MemoryMarshal.GetReference(buf));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -24,8 +27,9 @@ namespace PoeSharp.Filetypes
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object To(this Span<byte> buf, TypeCode type) =>
-            type switch
+        public static object To(this Span<byte> buf, TypeCode type)
+        {
+            object ret = type switch
             {
                 TypeCode.Boolean => buf.To<bool>(),
                 TypeCode.Byte => buf.To<byte>(),
@@ -39,9 +43,11 @@ namespace PoeSharp.Filetypes
                 TypeCode.Single => buf.To<float>(),
                 TypeCode.Double => buf.To<double>(),
                 TypeCode.Decimal => buf.To<decimal>(),
-                _ => null
+                _ => throw new NotImplementedException()
             };
 
+            return ret;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ReadOnlySpan<char> FromUnicodeBytesToUtf8

@@ -1,12 +1,6 @@
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
-using Microsoft.Toolkit.HighPerformance.Extensions;
 
 using PoeSharp.Filetypes.Dat.Specification;
 
@@ -14,29 +8,34 @@ namespace PoeSharp.Filetypes.Dat
 {
     public class DatRow
     {
-        private static readonly byte[] StringNullTerminator = { 0, 0, 0, 0 };
-
-        public ImmutableDictionary<string, DatValue> Columns { get; }
+        public Dictionary<string, IDatValue> Columns { get; }
 
         public DatRow(
             Span<byte> rowData, Span<byte> data,
             DatSpecification spec, DatFileIndex index)
         {
+            var cols = new Dictionary<string, IDatValue>(spec.Fields.Count);
+
             var buf = rowData;
             foreach (var (name, field) in spec.Fields)
             {
                 var dt = field.DatType;
-                IDatValue val = (dt.IsList, dt.IsReference) switch
+                var val = (dt.IsList, dt.IsReference) switch
                 {
-                    (false, false)  when dt.TypeCode is not TypeCode.String => SimpleDatValue.Create(ref buf, dt.TypeCode),
-                    (false, false)  when dt.TypeCode is TypeCode.String => new StringDatValue(ref buf),
-                    (false, true)   => new ReferencedDatValue(ref buf, data, index, field),
-                    (true, _)       => ListDatValue.Create(ref buf, data, index, field),
-                    _ => throw new Exception()
+                    (false, false) when dt.TypeCode is not TypeCode.String => SimpleDatValue.Create(ref buf, dt.TypeCode),
+                    (false, false) when dt.TypeCode is TypeCode.String => new StringDatValue(ref buf, data),
+                    (false, true) => new ReferencedDatValue(ref buf, data, index, field),
+                    (true, _) => ListDatValue.Create(ref buf, data, index, field),
+                    _ => ThrowHelper.NotSupported<IDatValue>()
                 };
+
+                cols.Add(name, val);
             }
+
+            Columns = cols;
         }
 
+        /*
         public DatRow(
             Span<byte> rowData, Span<byte> data,
             DatSpecification specification, DatFileIndex index, bool old)
@@ -128,6 +127,7 @@ namespace PoeSharp.Filetypes.Dat
 
             Columns = dictBuilder.ToImmutable();
         }
+        
 
         private static object[] ReadList(
             TypeCode typeCode, int start,
@@ -160,12 +160,14 @@ namespace PoeSharp.Filetypes.Dat
             }
             return ret;
         }
+        
+         */
 
-        public T Value<T>(string key) =>
-            (T)Columns[key].Value;
+        //public T Value<T>(string key) =>
+        //    (T)Columns[key].Value;
 
-        public object Value(string key) =>
-            Columns[key].Value;
+        //public object Value(string key) =>
+        //    Columns[key].Value;
 
     }
 }

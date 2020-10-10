@@ -1,13 +1,12 @@
 using System;
 using System.Linq;
-using System.Text.Json.Serialization;
 
 namespace PoeSharp.Filetypes.Dat.Specification
 {
     public class DatField
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private DatType _clrType;
-
         public string Type { get; set; }
         public string Key { get; set; }
         public string KeyId { get; set; }
@@ -19,6 +18,7 @@ namespace PoeSharp.Filetypes.Dat.Specification
         public string Display { get; set; }
         public string DisplayType { get; set; }
         public string Description { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         public DatType DatType => _clrType ??= new DatType(Type);
     }

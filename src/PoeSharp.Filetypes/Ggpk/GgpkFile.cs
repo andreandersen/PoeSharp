@@ -29,12 +29,6 @@ namespace PoeSharp.Filetypes.Ggpk
             _offset = fileRecord.DataOffset;
         }
 
-        //public void CopyToStream(Stream stream)
-        //{
-        //    var source = Parent.Root.Stream;
-        //    source.CopyTo(stream, _offset, Size);
-        //}
-
         public Stream GetStream()
         {
             var source = Parent.Root.Stream;

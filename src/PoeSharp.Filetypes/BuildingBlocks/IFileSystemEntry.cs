@@ -5,7 +5,7 @@
         /// <summary>
         ///     Parent directory. Must return null if root.
         /// </summary>
-        IDirectory Parent { get; }
+        IDirectory? Parent { get; }
 
         /// <summary>
         /// Name of the filesystem entry.

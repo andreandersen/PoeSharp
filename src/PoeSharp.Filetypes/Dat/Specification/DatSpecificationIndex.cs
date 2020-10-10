@@ -14,7 +14,7 @@ namespace PoeSharp.Filetypes.Dat.Specification
             get
             {
                 var programDirectory = new FileInfo(
-                    Assembly.GetExecutingAssembly().Location).Directory.FullName;
+                    Assembly.GetExecutingAssembly().Location).Directory!.FullName;
 
                 var specFile = Path.Combine(programDirectory, "spec.json");
 

@@ -10,7 +10,7 @@ namespace PoeSharp.Filetypes.BuildingBlocks
     {
         private readonly DirectoryInfo _dirInfo;
 
-        public DiskDirectory(string name, IDirectory parent = null, bool createIfNotExists = false)
+        public DiskDirectory(string name, IDirectory? parent = null, bool createIfNotExists = false)
         {
             _dirInfo = new DirectoryInfo(IoPath.Combine(parent?.Path ?? string.Empty, name));
 
@@ -25,7 +25,7 @@ namespace PoeSharp.Filetypes.BuildingBlocks
             _dirInfo.Refresh();
         }
 
-        public IDirectory Parent { get; }
+        public IDirectory? Parent { get; }
         public string Name { get; }
 
         public IEnumerable<IDirectory> Directories
@@ -50,7 +50,7 @@ namespace PoeSharp.Filetypes.BuildingBlocks
 
         public string Path => _dirInfo.FullName;
 
-        public IFileSystemEntry this[string index]
+        public IFileSystemEntry? this[string index]
         {
             get
             {
