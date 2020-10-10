@@ -80,7 +80,7 @@ namespace PoeSharp.Filetypes.Dat
                     }
                     else if (v.DatType.IsGenericReference)
                     {
-                        var ptrData = rowData.Slice(offset, 4).To<uint>();
+                        var ptrData = rowData.Slice(offset, 4).To<int>();
                         value = ptrData.IsNullValue() ? -1 : ptrData;
                         offset += 4;
                     }

@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-    <AnalysisLevel>preview</AnalysisLevel>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
+		<AnalysisLevel>preview</AnalysisLevel>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\PoeSharp.Filetypes\PoeSharp.Filetypes.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\PoeSharp.Filetypes\PoeSharp.Filetypes.csproj" />
+	</ItemGroup>
 
 </Project>
