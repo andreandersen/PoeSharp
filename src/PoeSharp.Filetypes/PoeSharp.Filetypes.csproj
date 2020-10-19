@@ -11,6 +11,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.0.0-preview3" />
+		<PackageReference Include="Sprache" Version="2.3.2-develop-00042" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
