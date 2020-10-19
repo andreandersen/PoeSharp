@@ -28,7 +28,7 @@ namespace PoeSharp.Filetypes.StatDescriptions
             select new SimpleInstruction(instruction);
 
         private static readonly Parser<string> Range =
-            from range in Parse.Chars("-0123456789#| ").AtLeastOnce().Text().Token()
+            from range in Parse.Chars("-0123456789#|! ").AtLeastOnce().Text().Token()
             select range.Trim();
 
         private static readonly Parser<string> TranslatedTemplate =
