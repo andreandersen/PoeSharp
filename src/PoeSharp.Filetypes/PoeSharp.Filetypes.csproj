@@ -4,8 +4,8 @@
 		<TargetFrameworks>net5.0;netcoreapp3.1</TargetFrameworks>
 		<LangVersion>preview</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<!--<EnableNETAnalyzers>true</EnableNETAnalyzers>
-		<AnalysisLevel>latest</AnalysisLevel>-->
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<AnalysisLevel>latest</AnalysisLevel>
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
