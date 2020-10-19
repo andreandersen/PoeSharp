@@ -23,7 +23,7 @@ namespace PoeSharp.Filetypes
             TypeCode.Single => sizeof(float),
             TypeCode.Double => sizeof(double),
             TypeCode.Decimal => sizeof(decimal),
-            _ => 0,
+            _ => ThrowHelper.NotSupported<int>()
         };
     }
 }

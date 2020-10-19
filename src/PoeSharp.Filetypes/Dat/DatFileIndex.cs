@@ -7,7 +7,7 @@ namespace PoeSharp.Filetypes.Dat
 {
     public sealed class DatFileIndex : ReadOnlyDictionaryBase<string, DatFile>
     {
-        public DatFileIndex(IDirectory directory, DetSpecificationIndex specIndex, bool lazyLoad = true)
+        public DatFileIndex(IDirectory directory, DatSpecIndex specIndex, bool lazyLoad = true)
         {
             var files = directory.Files.Where(c => c.Name.EndsWith(".dat")).ToArray();
             if (files.Length == 0)
@@ -27,7 +27,7 @@ namespace PoeSharp.Filetypes.Dat
                     continue;
                 }
 
-                var dat = new DatFile(file, specIndex[file.Name], this, lazyLoad);
+                var dat = new DatFile(file, this, specIndex[file.Name]);
                 Underlying.Add(file.Name, dat);
             }
         }

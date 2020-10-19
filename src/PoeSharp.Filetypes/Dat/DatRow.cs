@@ -1,175 +1,319 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
-using PoeSharp.Filetypes.Dat.Specification;
+using Microsoft.Toolkit.HighPerformance.Extensions;
 
 namespace PoeSharp.Filetypes.Dat
 {
-    public class DatRow
+    public partial class DatFile
     {
-        internal static readonly byte[] StringNullTerminator = { 0, 0, 0, 0 };
-
-        public ImmutableDictionary<string, DatValue> Columns { get; }
-
-        //public DatRow(
-        //    Span<byte> rowData, Span<byte> data,
-        //    DatSpecification spec, DatFileIndex index)
-        //{
-        //    var cols = new Dictionary<string, IDatValue>(spec.Fields.Count);
-
-        //    var buf = rowData;
-        //    foreach (var (name, field) in spec.Fields)
-        //    {
-        //        var dt = field.DatType;
-        //        var val = (dt.IsList, dt.IsReference) switch
-        //        {
-        //            (false, false) when dt.TypeCode is not TypeCode.String => SimpleDatValue.Create(ref buf, dt.TypeCode),
-        //            (false, true) when dt.TypeCode is TypeCode.String => new StringDatValue(ref buf, data),
-        //            (false, true) => new ReferencedDatValue(ref buf, data, index, field),
-        //            (true, _) => ListDatValue.Create(ref buf, data, index, field),
-        //            _ => ThrowHelper.NotSupported<IDatValue>()
-        //        };
-
-        //        cols.Add(name, val);
-        //    }
-
-        //    Columns = cols;
-        //}
-
-
-        public DatRow(
-            Span<byte> rowData, Span<byte> data,
-            DatSpecification specification, DatFileIndex index)
+        public readonly struct DatRow
         {
+            private readonly DatFile _parent;
+            private readonly int _rowIndex;
 
-            var dictBuilder = ImmutableDictionary.CreateBuilder<string, DatValue>();
-            var d = new Dictionary<string, ValueType>();
-            ValueType x = 4;
-
-            var offset = 0;
-
-            foreach (var (k, v) in specification.Fields)
+            public DatRow(DatFile parent, int rowIndex)
             {
-                if (offset >= rowData.Length)
-                    break;
-
-                object value;
-                if (v.DatType.IsReference)
-                {
-                    int dataOffset;
-
-                    if (v.DatType.IsList)
-                    {
-                        var elements = (int)rowData.Slice(offset, 4).To<uint>();
-                        offset += 4;
-
-                        if (offset >= rowData.Length)
-                            break;
-
-                        dataOffset = (int)rowData.Slice(offset, 4).To<uint>();
-                        offset += 4;
-
-                        if (offset.IsNullValue() || elements.IsNullValue())
-                        {
-                            continue;
-                        }
-
-                        value = ReadList(v.DatType.TypeCode, dataOffset,
-                            elements, data);
-                    }
-                    else if (v.DatType.IsGenericReference)
-                    {
-                        var ptrData = rowData.Slice(offset, 4).To<int>();
-                        value = ptrData.IsNullValue() ? -1 : ptrData;
-                        offset += 4;
-                    }
-                    else
-                    {
-                        dataOffset = (int)rowData.Slice(offset, 4).To<uint>();
-                        offset += 4;
-
-                        if (dataOffset.IsNullValue())
-                        {
-                            continue;
-                        }
-
-                        if (v.DatType.TypeCode == TypeCode.String)
-                        {
-                            if (dataOffset > data.Length)
-                            {
-                                continue;
-                            }
-
-                            var length = data[dataOffset..].IndexOf(StringNullTerminator);
-                            if (length % 2 != 0)
-                            {
-                                length++;
-                            }
-
-                            value = data.Slice(dataOffset, length).ToUnicodeText();
-                        }
-                        else
-                        {
-                            value = data.Slice(dataOffset, v.DatType.TypeCode.GetByteSize())
-                                .To(v.DatType.TypeCode);
-                        }
-                    }
-                }
-                else
-                {
-                    var size = v.DatType.TypeCode.GetByteSize();
-                    value = rowData.Slice(offset, size).To(v.DatType.TypeCode);
-                    offset += size;
-                }
-
-                var datValue = new DatValue(v, value, index);
-                dictBuilder.Add(k, datValue);
+                _parent = parent;
+                _rowIndex = rowIndex;
             }
 
-            Columns = dictBuilder.ToImmutable();
+            /// <summary>
+            /// Use this for simple values, such as short/ushort, int/uint etc
+            /// </summary>
+            /// <typeparam name="T">Type of your column</typeparam>
+            /// <param name="col">Column name</param>
+            /// <returns>The data with your type T</returns>
+            public T GetPrimitive<T>(string col) where T : unmanaged
+            {
+                var fld = _parent.Spec.Fields[col];
+                return _parent.Bytes
+                    .AsSpan()
+                    .Slice(fld.Offset + (_rowIndex * _parent.RowSize), fld.Size)
+                    .To<T>();
+            }
+
+            /// <summary>
+            /// Use this for your ref|short, ref|int etc
+            /// </summary>
+            /// <typeparam name="T">Type of your column, e.g. short, int</typeparam>
+            /// <param name="col">Column name</param>
+            /// <returns>The array of data with your type T</returns>
+            public T[] GetPrimitiveList<T>(string col) where T : unmanaged
+            {
+                var fld = _parent.Spec.Fields[col];
+                var bytes = _parent.Bytes.AsSpan();
+                var buf = bytes.Slice(fld.Offset + (_rowIndex * _parent.RowSize), fld.Size);
+                var elements = buf.ConsumeTo<int>();
+                var offset = buf.To<int>();
+
+                var data = bytes.Slice(_parent.DataOffset + offset, elements * Unsafe.SizeOf<T>());
+                var ret = data.Cast<byte, T>();
+                return ret.ToArray();
+            }
+
+            /// <summary>
+            /// Used to find the end of strings in the data chunk
+            /// </summary>
+            internal static readonly byte[] StringNullTerminator
+                = { 0, 0, 0, 0 };
+
+            /// <summary>
+            /// Use this for your single strings
+            /// </summary>
+            /// <param name="col">Column name</param>
+            /// <returns>String</returns>
+            public string GetString(string col)
+            {
+                var fld = _parent.Spec.Fields[col];
+                var bytes = _parent.Bytes.AsSpan();
+                var buf = bytes.Slice(fld.Offset + (_rowIndex * _parent.RowSize), fld.Size);
+                var offset = buf.To<int>();
+                var data = bytes.Slice(_parent.DataOffset);
+                
+                // TODO: Should we perhaps throw on offset > data.Length?
+                if (offset.IsNullValue() || offset > data.Length)
+                    return string.Empty;
+
+                var dataBuf = data.Slice(offset);
+                var dataLen = dataBuf.IndexOf(StringNullTerminator);
+
+                if (dataLen == -1)
+                    return string.Empty;
+
+                if (dataLen % 2 != 0)
+                    dataLen++;
+
+                return dataBuf.Slice(0, dataLen).ToUnicodeText();
+            }
+
+            /// <summary>
+            /// Use this for your string arrays
+            /// </summary>
+            /// <param name="col">Column name</param>
+            /// <returns>Array of Strings</returns>
+            public string[] GetStringList(string col)
+            {
+                var fld = _parent.Spec.Fields[col];
+                var bytes = _parent.Bytes.AsSpan();
+                var buf = bytes.Slice(fld.Offset + (_rowIndex * _parent.RowSize), fld.Size);
+
+                var elements = buf.ConsumeTo<int>();
+                var offset = buf.To<int>();
+
+                if (elements.IsNullValue() || offset.IsNullValue())
+                    return Array.Empty<string>();
+                
+                var data = bytes.Slice(_parent.DataOffset);
+
+                var dataOffsets = data.Slice(offset, 4 * elements);
+                var offsets = dataOffsets.Cast<byte, int>();
+
+                var strings = new string[elements];
+
+                for (int i = 0; i < elements; i++)
+                {
+                    var df = data.Slice(offsets[i]);
+                    var strLen = df.IndexOf(DirectDatValue.StringNullTerminator);
+                    if (strLen % 2 != 0)
+                        strLen++;
+
+                    strings[i] = df.Slice(0, strLen).ToUnicodeText();
+                }
+
+                return strings;
+            }
+
+            /// <summary>
+            /// Use this for your e.g ref|int or ref|generic
+            /// </summary>
+            /// <param name="col">Column name</param>
+            /// <returns>True if successful</returns>
+            public bool TryGetReferencedDatValue(string col, out DatRow row)
+            {
+                var fld = _parent.Spec.Fields[col];
+
+                // Key is required if not generic
+                if (string.IsNullOrEmpty(fld.Key) && !fld.IsGenericReference)
+                {
+                    Debug.Fail("Field is not a reference");
+                    row = default;
+                    return false;
+                }
+
+                // Should use the GetReferencesListValues instead
+                if (fld.IsList)
+                {
+                    Debug.Fail("Field is a list.");
+                    row = default;
+                    return false;
+                }
+
+                if (fld.TypeCode == TypeCode.String)
+                {
+                    Debug.Fail(
+                        "Field is a string, which is not supported by this method. " +
+                        "Use GetString and reference manually");
+                    row = default;
+                    return false;
+                }
+
+                var rowIdx = fld.TypeCode switch
+                {
+                    TypeCode.Int32 or TypeCode.UInt32 => GetPrimitive<int>(col),
+                    TypeCode.Int64 or TypeCode.UInt64 => GetPrimitive<long>(col),
+                    _ => -1
+                };
+
+                if (rowIdx < 0 || rowIdx.IsNullValue())
+                {
+                    Debug.Fail("Wrong kind of type used, or null value found");
+                    row = default;
+                    return false;
+                }
+
+                DatFile refDat;
+
+                if (fld.IsGenericReference)
+                { 
+                    refDat = _parent;
+                }
+                else if (!_parent.Index.TryGetValue(fld.Key, out refDat))
+                {
+                    Debug.Fail("Dat file not found");
+                    row = default;
+                    return false;
+                }
+
+                if (refDat.Count < rowIdx)
+                {
+                    Debug.Fail("Dat file's count is lower than referenced index");
+                    row = default;
+                    return false;
+                }
+
+                row = refDat[(int)rowIdx];
+                return true;
+            }
+
+            /// <summary>
+            /// Use this for your ref|list|int where Key is present 
+            /// or for your ref|list|generic
+            /// </summary>
+            /// <param name="col">Column name</param>
+            /// <returns>True if successful</returns>
+            public bool TryGetReferencedDatValueList(string col, out DatRow[] rows)
+            {
+                var fld = _parent.Spec.Fields[col];
+
+                // Key is required if not generic
+                if (string.IsNullOrEmpty(fld.Key) && !fld.IsGenericReference)
+                {
+                    Debug.Fail("Field is not a reference");
+                    rows = Array.Empty<DatRow>();
+                    return false;
+                }
+
+                // Should use the GetReferencesListValues instead
+                if (!fld.IsList)
+                {
+                    Debug.Fail("Field is not a list.");
+                    rows = Array.Empty<DatRow>();
+                    return false;
+                }
+
+                if (fld.TypeCode == TypeCode.String)
+                {
+                    Debug.Fail(
+                        "Field is a string, which is not supported by this method. " +
+                        "Use GetString and reference manually");
+                    rows = Array.Empty<DatRow>();
+                    return false;
+                }
+
+                DatFile refDat;
+
+                if (fld.IsGenericReference)
+                {
+                    refDat = _parent;
+                }
+                else if (!_parent.Index.TryGetValue(fld.Key, out refDat))
+                {
+                    Debug.Fail("Dat file not found");
+                    rows = Array.Empty<DatRow>();
+                    return false;
+                }
+
+                var ret = fld.TypeCode switch
+                {
+                    TypeCode.Int64 or TypeCode.UInt64 => GetRowsL(GetPrimitiveList<long>(col)),
+                    TypeCode.Int32 or TypeCode.UInt32 => GetRowsI(GetPrimitiveList<int>(col)),
+                    _ => null
+                };
+
+                rows = ret ?? Array.Empty<DatRow>();
+                return ret != null;
+
+                DatRow[] GetRowsI(int[] indexes)
+                {
+                    var c = indexes.Length;
+                    var rowsRet = new DatRow[c];
+                    for (int i = 0; i < c; i++)
+                    {
+                        rowsRet[i] = refDat[indexes[i]];
+                    }
+                    return rowsRet;
+                }
+
+                DatRow[] GetRowsL(long[] indexes)
+                {
+                    var c = indexes.Length;
+                    var rowsRet = new DatRow[c];
+                    for (int i = 0; i < c; i++)
+                    {
+                        rowsRet[i] = refDat[(int)indexes[i]];
+                    }
+                    return rowsRet;
+                }
+
+            }
+
+            /// <summary>
+            /// WARNING: This currently does not behave the same way as the Get/TryGet methods!
+            /// This is your simple boxed version of getting a column. 
+            /// It will allocate and you will pay the box/unboxing penalty. 
+            /// But hey, it's simple, and all that.
+            /// </summary>
+            /// <param name="col">Column name as per the Dat Specification</param>
+            /// <returns>A boxed value your what you asked for</returns>
+            public object this[string col]
+            {
+                get
+                {
+                    var fld = _parent.Spec.Fields[col];
+                    var bytes = _parent.Bytes.AsSpan();
+                    var buf = bytes[(fld.Offset + (_rowIndex * _parent.RowSize))..];
+                    var data = bytes[_parent.DataOffset..];
+
+                    var val = (fld.IsList, fld.IsReference) switch
+                    {
+                        (false, false) when fld.TypeCode is not TypeCode.String => DirectDatValue.Create(ref buf, fld.TypeCode),
+                        (false, true) when fld.TypeCode is TypeCode.String => DirectDatValue.CreateString(ref buf, data),
+                        (false, true) => new ReferencedDatValue(ref buf, data, _parent.Index, fld),
+                        (true, _) => ListDatValue.Create(ref buf, data, _parent.Index, fld),
+                        _ => ThrowHelper.NotSupported<object>()
+                    };
+
+                    return val;
+                }
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private Specification.DatField GetFieldForColumn(string col) => _parent.Spec.Fields[col];
         }
-
-
-        private static object[] ReadList(
-            TypeCode typeCode, int start,
-            int elements, Span<byte> data)
-        {
-            var ret = new object[elements];
-
-            if (typeCode == TypeCode.String)
-            {
-                for (var i = 0; i < elements; i++)
-                {
-                    var length = data[start..].IndexOf(StringNullTerminator);
-                    if (length % 2 != 0)
-                    {
-                        length++;
-                    }
-
-                    ret[i] = data.Slice(start, length).ToUnicodeText();
-                    start += length;
-                }
-            }
-            else
-            {
-                var size = typeCode.GetByteSize();
-
-                for (var i = 0; i < elements; i++)
-                {
-                    ret[i] = data.Slice(start + (i * size), size).To(typeCode);
-                }
-            }
-            return ret;
-        }
-
-
-
-        public T Value<T>(string key) =>
-            (T)Columns[key].Value;
-
-        public object Value(string key) =>
-            Columns[key].Value;
-
     }
 }

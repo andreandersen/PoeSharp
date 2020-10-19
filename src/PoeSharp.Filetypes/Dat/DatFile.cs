@@ -1,76 +1,87 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System;
 
 using PoeSharp.Filetypes.BuildingBlocks;
 using PoeSharp.Filetypes.Dat.Specification;
 
 namespace PoeSharp.Filetypes.Dat
 {
-    public class DatFile
+    public partial class DatFile
     {
         private static readonly byte[] DataSeparator =
             BitConverter.GetBytes(0xbbbbbbbbbbbbbbbb);
 
-        private readonly DatFileIndex _idx;
-
-        private readonly object _loadLock = new object();
-        private readonly IFile _source;
-
-        private readonly DatSpecification _spec;
+        private readonly IFile _sourceFile;
         private bool _isLoaded;
-        private DatRow[] _rows;
 
-        internal DatFile(IFile source, DatSpecification specification, DatFileIndex index,
-            bool lazyLoad = true)
-        {
-            _source = source;
-            _spec = specification;
-            _idx = index;
+        protected byte[] Bytes;
 
-            if (!lazyLoad) Load();
-        }
+        protected int RowSize { get; private set; }
+        protected int RowCount;
+        protected int DataOffset;
 
-        public IReadOnlyList<DatRow> Rows
+        private readonly object _lockObject =
+            new object();
+
+        public int Count
         {
             get
             {
-                if (_isLoaded) return _rows;
+                if (!_isLoaded)
+                    EnsureLoaded();
 
-                lock (_loadLock)
-                {
-                    if (!_isLoaded) Load();
-                }
-
-                return _rows;
+                return RowCount;
             }
         }
 
-        public DatRow this[int index] => Rows[index];
+        public DatSchema Specification => Spec;
 
-        public int Count => Rows.Count;
+        protected readonly DatFileIndex Index;
+        protected readonly DatSchema Spec;
 
+        public string Name => _sourceFile.Name;
 
-        private void Load()
+        public DatRow this[int row]
         {
-            Span<byte> data = _source.AsSpan();
-
-            var rowsCount = (int) data.Slice(0, 4).To<uint>();
-            var dataStart = data.IndexOf(DataSeparator);
-            var rowSize = rowsCount > 0 ? (dataStart - 4) / rowsCount : 0;
-
-            var dataSection = data[dataStart..];
-            var rows = new DatRow[rowsCount];
-
-            for (var r = 0; r < rowsCount; r++)
+            get
             {
-                var rowBytes = data.Slice(4 + r * rowSize, rowSize);
-                var datRow = new DatRow(rowBytes, dataSection, _spec, _idx);
-                rows[r] = datRow;
-            }
+                if (!_isLoaded)
+                    EnsureLoaded();
 
-            _rows = rows;
-            _isLoaded = true;
+                return new DatRow(this, row);
+            }
+        }
+
+        internal DatFile(
+            IFile file,
+            DatFileIndex datIndex,
+            DatSchema spec)
+        {
+            _sourceFile = file;
+            Index = datIndex;
+            Spec = spec;
+            Bytes = Array.Empty<byte>();
+        }
+
+        private void EnsureLoaded()
+        {
+            if (_isLoaded)
+                return;
+
+            lock (_lockObject)
+            {
+                if (_isLoaded)
+                    return;
+
+                var bytes = _sourceFile.AsSpan();
+
+                RowCount = (int)bytes.Slice(0, 4).To<uint>();
+                DataOffset = bytes.IndexOf(DataSeparator);
+                RowSize = RowCount > 0 ? ((DataOffset == -1 ? 0 : DataOffset) - 4) / RowCount : 0;
+                DataOffset = DataOffset > 0 ? DataOffset - 4 : -1;
+                Bytes = bytes.Slice(4).ToArray();
+                _isLoaded = true;
+            }    
         }
     }
+
 }

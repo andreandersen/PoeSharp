@@ -8,13 +8,12 @@ namespace PoeSharp.Filetypes
     public static class ConversionExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T To<T>(this Span<byte> buf) => Unsafe.As<byte, T>(ref buf[0]);
+        public static T To<T>(this Span<byte> buf) where T : struct => 
+            Unsafe.As<byte, T>(ref buf[0]);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T To<T>(this ReadOnlySpan<byte> buf)
-        {
-            return Unsafe.As<byte, T>(ref MemoryMarshal.GetReference(buf));
-        }
+        public static T To<T>(this ReadOnlySpan<byte> buf) where T : struct => 
+            Unsafe.As<byte, T>(ref MemoryMarshal.GetReference(buf));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T ConsumeTo<T>(this ref Span<byte> buf)
@@ -26,28 +25,28 @@ namespace PoeSharp.Filetypes
             return ret;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object To(this Span<byte> buf, TypeCode type)
-        {
-            object ret = type switch
-            {
-                TypeCode.Boolean => buf.To<bool>(),
-                TypeCode.Byte => buf.To<byte>(),
-                TypeCode.SByte => buf.To<sbyte>(),
-                TypeCode.Int16 => buf.To<short>(),
-                TypeCode.UInt16 => buf.To<ushort>(),
-                TypeCode.Int32 => buf.To<int>(),
-                TypeCode.UInt32 => buf.To<uint>(),
-                TypeCode.Int64 => buf.To<long>(),
-                TypeCode.UInt64 => buf.To<ulong>(),
-                TypeCode.Single => buf.To<float>(),
-                TypeCode.Double => buf.To<double>(),
-                TypeCode.Decimal => buf.To<decimal>(),
-                _ => throw new NotImplementedException()
-            };
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        //public static object To(this Span<byte> buf, TypeCode type)
+        //{
+        //    var ret = type switch
+        //    {
+        //        TypeCode.Boolean => buf.To<bool>(),
+        //        TypeCode.Byte => buf.To<byte>(),
+        //        TypeCode.SByte => buf.To<sbyte>(),
+        //        TypeCode.Int16 => buf.To<short>(),
+        //        TypeCode.UInt16 => buf.To<ushort>(),
+        //        TypeCode.Int32 => buf.To<int>(),
+        //        TypeCode.UInt32 => buf.To<uint>(),
+        //        TypeCode.Int64 => buf.To<long>(),
+        //        TypeCode.UInt64 => buf.To<ulong>(),
+        //        TypeCode.Single => buf.To<float>(),
+        //        TypeCode.Double => buf.To<double>(),
+        //        TypeCode.Decimal => buf.To<decimal>(),
+        //        _ => ThrowHelper.NotSupported<object>()
+        //    };
 
-            return ret;
-        }
+        //    return ret;
+        //}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ReadOnlySpan<char> FromUnicodeBytesToUtf8

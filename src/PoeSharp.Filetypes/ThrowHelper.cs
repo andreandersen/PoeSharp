@@ -32,6 +32,11 @@ namespace PoeSharp.Filetypes
         {
             throw new NotSupportedException();
         }
+
+        public static void ArgumentException(string? message = default)
+        {
+            throw new ArgumentException(message);
+        }
     }
 
 }
