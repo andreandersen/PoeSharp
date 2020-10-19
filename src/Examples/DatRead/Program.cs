@@ -11,7 +11,7 @@ namespace DatRead
     {
         private static void Main(string[] args)
         {
-            const DiskDirectory pathToDatFiles = @"C:\noindex\3124\Bundles2\Bundles2\Data";
+            DiskDirectory pathToDatFiles = @"C:\noindex\3124\Bundles2\Bundles2\Data";
 
             TimeSpan total = default;
             var sw = Stopwatch.StartNew();
@@ -47,7 +47,7 @@ namespace DatRead
 
             for (var i = 0; i < 10; i++)
             {
-                Console.WriteLine(ret[i].Id);
+                Console.WriteLine(ret[i].Name);
             }
         }
 
