@@ -112,7 +112,7 @@ namespace PoeSharp.Filetypes.BuildingBlocks
             DiskDirectory? dir)
         {
             var fi = new FileInfo(IoPath.Combine(dir?.Path ?? "", name));
-            return dir == null || fi.Name != name ? (fi.Name, new DiskDirectory(fi.DirectoryName)) : (name, dir);
+            return dir == null || fi.Name != name ? (fi.Name, new DiskDirectory(fi.DirectoryName!)) : (name, dir);
         }
 
         public static implicit operator DiskFile(string fullName) =>

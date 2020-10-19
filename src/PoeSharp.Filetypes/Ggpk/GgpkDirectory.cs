@@ -13,8 +13,8 @@ namespace PoeSharp.Filetypes.Ggpk
         private readonly object _entriesLock = new object();
         private bool _hasEvaluatedEntries;
         private readonly ReadOnlyMemory<DirectoryEntry> _entries;
-        private readonly Dictionary<string, GgpkDirectory> _directories;
-        private readonly Dictionary<string, GgpkFile> _files;
+        private readonly Dictionary<string, GgpkDirectory> _directories = new Dictionary<string, GgpkDirectory>();
+        private readonly Dictionary<string, GgpkFile> _files = new Dictionary<string, GgpkFile>();
         internal GgpkFileSystem Root { get; }
 
         public string Name { get; }
@@ -48,21 +48,30 @@ namespace PoeSharp.Filetypes.Ggpk
 
         private GgpkDirectory(
                     DirectoryRecord dirRecord,
-                    GgpkDirectory? parent = null,
-                    GgpkFileSystem? root = null)
+                    GgpkFileSystem root)
         {
             Record = dirRecord;
             Name = dirRecord.Name.ToString();
-            Parent = parent;
-            Root = root ?? parent?.Root ?? null;
-            Path = Parent != null ?
-                System.IO.Path.Combine(parent.Path, Name) :
-                string.Empty;
+            Parent = null;
+            Root = root;
+            Path = string.Empty;
 
             _entries = dirRecord.Entries;
             _files = new Dictionary<string, GgpkFile>();
             _directories = new Dictionary<string, GgpkDirectory>();
         }
+
+        private GgpkDirectory(DirectoryRecord dirRecord, GgpkDirectory parent)
+        {
+            Record = dirRecord;
+            Name = dirRecord.Name.ToString();
+            Parent = parent;
+            Root = parent.Root;
+            Path = System.IO.Path.Combine(parent.Path, Name);
+            _entries = dirRecord.Entries;
+        }
+
+
 
         private void EnsureEntriesInitialized()
         {
@@ -101,7 +110,7 @@ namespace PoeSharp.Filetypes.Ggpk
         internal static GgpkDirectory CreateRootDirectory(
             DirectoryRecord rootDirRecord, GgpkFileSystem fileSystem)
         {
-            return new GgpkDirectory(rootDirRecord, null, fileSystem);
+            return new GgpkDirectory(rootDirRecord, fileSystem);
         }
 
         public void CopyTo(IWritableDirectory destination) => throw new NotImplementedException();

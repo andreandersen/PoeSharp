@@ -9,7 +9,7 @@ namespace PoeSharp.Filetypes.Ggpk
     {
         private readonly ThreadLocal<FileStream> _threadStream;
 
-        internal FileStream Stream => _threadStream.Value;
+        internal FileStream Stream => _threadStream.Value!;
 
         public string Path;
         public IReadOnlyDictionary<string, GgpkDirectory> Directories => Root.Directories;
@@ -35,7 +35,7 @@ namespace PoeSharp.Filetypes.Ggpk
             } while (ggpkHeader.Type != RecordType.Ggpk);
 
             var ggpk = new GgpkRecord(Stream, ggpkHeader.Length);
-            DirectoryRecord dirRecord = default;
+            DirectoryRecord? dirRecord = default;
             foreach (var offset in ggpk.RecordOffsets.Span)
             {
                 Stream.Position = offset;

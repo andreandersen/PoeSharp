@@ -8,7 +8,7 @@ namespace PoeSharp.Filetypes.Bundle.Internal
     {
         [DllImport("Bundle\\lib\\libooz.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern int Ooz_Decompress(void* compressedContent, int compressedLength, void* decompressedContent, int decompressedSize,
-            int fuzz, int crc, int verbose, byte[] dst_base, int e, IntPtr cb, IntPtr cb_ctx, IntPtr scratch, int scratch_size, int threadPhase);
+            int fuzz, int crc, int verbose, byte[]? dst_base, int e, IntPtr cb, IntPtr cb_ctx, IntPtr scratch, int scratch_size, int threadPhase);
 
         public static int Ooz_Decompress(Span<byte> compressedContent, int compressedLength, Span<byte> decompressedContent, int decompressedSize)
         {

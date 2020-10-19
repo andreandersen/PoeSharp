@@ -10,7 +10,7 @@ namespace PoeSharp.Filetypes.Ggpk
         {
             var destFile = new FileInfo(path);
 
-            if (!destFile.Directory.Exists)
+            if (!destFile.Directory!.Exists)
                 destFile.Directory.Create();
 
             using var fs = destFile.Exists ? destFile.OpenWrite() : destFile.Create();
