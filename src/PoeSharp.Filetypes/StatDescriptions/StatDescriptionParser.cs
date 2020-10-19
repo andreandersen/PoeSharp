@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using PoeSharp.Filetypes.StatDescriptions.SyntaxTree;
-using Sprache;
 
+using PoeSharp.Filetypes.StatDescriptions.SyntaxTree;
+
+using Sprache;
 
 namespace PoeSharp.Filetypes.StatDescriptions
 {

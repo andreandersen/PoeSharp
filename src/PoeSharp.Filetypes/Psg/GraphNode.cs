@@ -4,7 +4,7 @@ namespace PoeSharp.Filetypes.Psg
 {
     public class GraphNode
     {
-        internal GraphNode(uint passiveSkill, uint radius, uint position, 
+        internal GraphNode(uint passiveSkill, uint radius, uint position,
             IReadOnlyList<uint> connections)
         {
             PassiveSkill = passiveSkill;
