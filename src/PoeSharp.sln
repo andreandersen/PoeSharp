@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28407.52
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31521.260
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PoeSharp.Filetypes", "PoeSharp.Filetypes\PoeSharp.Filetypes.csproj", "{8B00668F-E9F7-4609-A627-80303EC3B02B}"
 EndProject
@@ -21,8 +21,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PoeSharp.Tests", "PoeSharp.Tests\PoeSharp.Tests.csproj", "{531C2DFF-0C2A-4612-B1BB-428F05C74553}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StatDescriptionsAndStuff", "Examples\StatDescriptionsAndStuff\StatDescriptionsAndStuff.csproj", "{E4E3FDB8-354B-4932-AAFB-5895C232AC43}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestingStuff", "Examples\TestingStuff\TestingStuff.csproj", "{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -106,18 +104,6 @@ Global
 		{E4E3FDB8-354B-4932-AAFB-5895C232AC43}.Release|x64.Build.0 = Release|Any CPU
 		{E4E3FDB8-354B-4932-AAFB-5895C232AC43}.Release|x86.ActiveCfg = Release|Any CPU
 		{E4E3FDB8-354B-4932-AAFB-5895C232AC43}.Release|x86.Build.0 = Release|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Debug|x64.Build.0 = Debug|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Debug|x86.Build.0 = Debug|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Release|x64.ActiveCfg = Release|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Release|x64.Build.0 = Release|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Release|x86.ActiveCfg = Release|Any CPU
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,7 +113,6 @@ Global
 		{1422D60F-44BA-4EF2-B1D2-4A41395BF4DE} = {E2671345-BD28-489C-BC67-5F71C702A22F}
 		{C7CED548-4CB4-4862-98E0-8BA3F20E1103} = {E2671345-BD28-489C-BC67-5F71C702A22F}
 		{E4E3FDB8-354B-4932-AAFB-5895C232AC43} = {E2671345-BD28-489C-BC67-5F71C702A22F}
-		{A0B1455D-BA9E-4AA1-A512-89A1502E5C6D} = {E2671345-BD28-489C-BC67-5F71C702A22F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F0B97F3E-94F4-4012-81E8-0BF5C4D151F6}
