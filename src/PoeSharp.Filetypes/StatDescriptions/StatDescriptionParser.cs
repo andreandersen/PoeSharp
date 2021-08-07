@@ -62,14 +62,14 @@ namespace PoeSharp.Filetypes.StatDescriptions
             select new Language(name.IsDefined ? name.Get() : "English",
                 vars.ToList());
 
-        private static Parser<IInstruction> Description =
+        private static readonly Parser<IInstruction> Description =
             from instruction in Parse.String("description")
             from name in Parse.AnyChar.Except(Parse.LineEnd).AtLeastOnce().Text().Or(Parse.LineEnd)
             from stats in Stats
             from langs in Language.AtLeastOnce().Token()
             select new Description(name.Trim(), stats.Select(c => c.Trim()).ToList(), langs.ToList());
 
-        private static Parser<IEnumerable<IInstruction>> Instructions =
+        private static readonly Parser<IEnumerable<IInstruction>> Instructions =
             from x in
                 Description
                 .Or(NoDescription)

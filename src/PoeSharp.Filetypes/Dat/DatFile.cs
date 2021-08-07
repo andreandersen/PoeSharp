@@ -12,15 +12,13 @@ namespace PoeSharp.Filetypes.Dat
 
         private readonly IFile _sourceFile;
         private bool _isLoaded;
+        private readonly object _lockObject = new();
 
         protected byte[] Bytes;
-
         protected int RowSize { get; private set; }
         protected int RowCount;
         protected int DataOffset;
 
-        private readonly object _lockObject =
-            new object();
 
         public int Count
         {
@@ -78,7 +76,7 @@ namespace PoeSharp.Filetypes.Dat
                 DataOffset = bytes.IndexOf(DataSeparator);
                 RowSize = RowCount > 0 ? ((DataOffset == -1 ? 0 : DataOffset) - 4) / RowCount : 0;
                 DataOffset = DataOffset > 0 ? DataOffset - 4 : -1;
-                Bytes = bytes.Slice(4).ToArray();
+                Bytes = bytes[4..].ToArray();
                 _isLoaded = true;
             }    
         }

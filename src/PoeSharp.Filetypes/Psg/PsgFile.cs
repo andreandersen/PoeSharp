@@ -16,22 +16,20 @@ namespace PoeSharp.Filetypes.Psg
 
         public PsgFile(IFile file)
         {
-            using (var stream = file.GetStream())
-            {
-                stream.Position = 1;
-                stream.Seek(stream.ReadByte(), SeekOrigin.Current);
+            using var stream = file.GetStream();
+            stream.Position = 1;
+            stream.Seek(stream.ReadByte(), SeekOrigin.Current);
 
-                // rootLength should be 7, the number of classes in the game
-                //var rootLength = (int)stream.ReadUInt32();
-                var rootLength = stream.Read<int>();
+            // rootLength should be 7, the number of classes in the game
+            //var rootLength = (int)stream.ReadUInt32();
+            var rootLength = stream.Read<int>();
 
-                _roots = stream
-                    .Read<uint>(rootLength).Span
-                    .ToArray().ToList()
-                    .Select(c => new GraphRoot(c)).ToList();
+            _roots = stream
+                .Read<uint>(rootLength).Span
+                .ToArray().ToList()
+                .Select(c => new GraphRoot(c)).ToList();
 
-                _groups = ExtractGroupNodes(stream);
-            }
+            _groups = ExtractGroupNodes(stream);
         }
 
         public IReadOnlyList<GraphRoot> Roots => _roots;

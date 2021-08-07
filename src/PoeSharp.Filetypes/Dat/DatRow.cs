@@ -73,13 +73,13 @@ namespace PoeSharp.Filetypes.Dat
                 var bytes = _parent.Bytes.AsSpan();
                 var buf = bytes.Slice(fld.Offset + (_rowIndex * _parent.RowSize), fld.Size);
                 var offset = buf.To<int>();
-                var data = bytes.Slice(_parent.DataOffset);
+                var data = bytes[_parent.DataOffset..];
                 
                 // TODO: Should we perhaps throw on offset > data.Length?
                 if (offset.IsNullValue() || offset > data.Length)
                     return string.Empty;
 
-                var dataBuf = data.Slice(offset);
+                var dataBuf = data[offset..];
                 var dataLen = dataBuf.IndexOf(StringNullTerminator);
 
                 if (dataLen == -1)
@@ -108,7 +108,7 @@ namespace PoeSharp.Filetypes.Dat
                 if (elements.IsNullValue() || offset.IsNullValue())
                     return Array.Empty<string>();
                 
-                var data = bytes.Slice(_parent.DataOffset);
+                var data = bytes[_parent.DataOffset..];
 
                 var dataOffsets = data.Slice(offset, 4 * elements);
                 var offsets = dataOffsets.Cast<byte, int>();
@@ -117,7 +117,7 @@ namespace PoeSharp.Filetypes.Dat
 
                 for (int i = 0; i < elements; i++)
                 {
-                    var df = data.Slice(offsets[i]);
+                    var df = data[offsets[i]..];
                     var strLen = df.IndexOf(DirectDatValue.StringNullTerminator);
                     if (strLen % 2 != 0)
                         strLen++;

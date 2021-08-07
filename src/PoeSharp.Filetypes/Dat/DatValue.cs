@@ -42,7 +42,7 @@ namespace PoeSharp.Filetypes.Dat
                 return string.Empty;
             }
 
-            var dataBuf = data.Slice(offset);
+            var dataBuf = data[offset..];
             var dataLen = dataBuf.IndexOf(StringNullTerminator);
 
             if (dataLen == -1)

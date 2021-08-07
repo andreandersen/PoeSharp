@@ -4,10 +4,13 @@ namespace PoeSharp.Filetypes.StatDescriptions.SyntaxTree
 {
     public class DescriptionVariation
     {
-        private static Dictionary<string, string> AnnoyingIssuesReplacements =
-            new Dictionary<string, string>
+        private static readonly Dictionary<string, string> AnnoyingIssuesReplacements =
+            new()
             {
-                { "divide_by_one_hundred 2reminderstring ReminderTextLifeLeech", "divide_by_one_hundred 2" }
+                {
+                    "divide_by_one_hundred 2reminderstring ReminderTextLifeLeech",
+                    "divide_by_one_hundred 2"
+                }
             };
 
         public DescriptionVariation(string range, string text, string extra)

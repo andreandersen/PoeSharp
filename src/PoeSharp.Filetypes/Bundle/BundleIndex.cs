@@ -18,8 +18,7 @@ namespace PoeSharp.Filetypes.Bundle
         private readonly IDirectory _sourceDir;
         private readonly BundleInfoRecord[] _bundles;
 
-        public readonly BundledDirectory Root =
-            new BundledDirectory("", null);
+        public readonly BundledDirectory Root = new("", null);
 
         public BundleIndex(IDirectory sourceDirectory)
         {

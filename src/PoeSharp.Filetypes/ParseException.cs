@@ -13,6 +13,6 @@ namespace PoeSharp.Filetypes
         }
 
         public static ParseException GgpkParseFailure =>
-            new ParseException("Parsing GGPK failed");
+            new("Parsing GGPK failed");
     }
 }

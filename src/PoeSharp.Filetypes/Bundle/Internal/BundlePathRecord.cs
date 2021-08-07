@@ -55,7 +55,7 @@ namespace PoeSharp.Filetypes.Bundle.Internal
                 var nameLen = data.IndexOf(nullTerm);
                 var path = Encoding.ASCII.GetString(data.Slice(0, nameLen));
                 
-                data = data.Slice(nameLen + 1);
+                data = data[(nameLen + 1)..];
 
                 var index = command - 1;
                 

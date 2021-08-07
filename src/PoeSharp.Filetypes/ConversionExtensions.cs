@@ -21,7 +21,7 @@ namespace PoeSharp.Filetypes
             var size = Unsafe.SizeOf<T>();
             var t = buf.Slice(0, size);
             var ret = Unsafe.As<byte, T>(ref t[0]);
-            buf = buf.Slice(size);
+            buf = buf[size..];
             return ret;
         }
 
@@ -29,7 +29,7 @@ namespace PoeSharp.Filetypes
         public static Span<T> Consume<T>(this ref Span<T> buf, int length) where T : unmanaged
         {
             var ret = buf.Slice(0, length);
-            buf = buf.Slice(length);
+            buf = buf[length..];
             return ret;
         }
 
@@ -41,7 +41,7 @@ namespace PoeSharp.Filetypes
             var size = Unsafe.SizeOf<T>();
             var t = buf.Slice(0, elements * size);
             var ret = MemoryMarshal.Cast<byte, T>(t);
-            buf = buf.Slice(elements * size);
+            buf = buf[(elements * size)..];
             return ret;
         }
 

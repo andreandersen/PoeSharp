@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-using PoeSharp.Filetypes.BuildingBlocks;
 using PoeSharp.Filetypes.Bundle.Internal;
 
 namespace PoeSharp.Filetypes.Bundle
@@ -32,7 +31,7 @@ namespace PoeSharp.Filetypes.Bundle
             if (blockStart > 0)
                 slice = blockSizes.Slice(0, blockStart).ToArray().Sum();
             if (slice > 0)
-                buffer = buffer.Slice(slice);
+                buffer = buffer[slice..];
 
             var destination = new Span<byte>(
                 new byte[(blockCount*MaxChunkSize) + SafeSpace]);
@@ -105,11 +104,5 @@ namespace PoeSharp.Filetypes.Bundle
         public static Span<byte> DecompressBundle(this Span<byte> src) =>
             Decompress(src);
 
-    }
-
-    public static class BundlesExtensions
-    {
-        public static BundleIndex OpenBundleIndex(this IDirectory bundlesDir) =>
-            new BundleIndex(bundlesDir);
     }
 }

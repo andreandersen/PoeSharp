@@ -9,9 +9,9 @@ namespace PoeSharp.Filetypes.StatDescriptions
 {
     public class PidginStatParser
     {
-        static Parser<char, char> Quote = Char('"');
+        static readonly Parser<char, char> Quote = Char('"');
 
-        static Parser<char, string> IncludeInstruction =
+        static readonly Parser<char, string> IncludeInstruction =
             String("include")
             .Then(Whitespaces).Optional()
             .Then(Quote)
@@ -19,7 +19,7 @@ namespace PoeSharp.Filetypes.StatDescriptions
             .Until(Quote)
             .Select(c => string.Concat(c));
 
-        static Parser<char, string> NoDescription =
+        static readonly Parser<char, string> NoDescription =
             String("no_description")
             .Then(Whitespaces).Optional()
             .Then(Any.AtLeastOnceUntil(EndOfLine))
@@ -37,10 +37,10 @@ namespace PoeSharp.Filetypes.StatDescriptions
             return p.Value;
         }
 
-        static Parser<char, char> RangeCharacter = 
+        static readonly Parser<char, char> RangeCharacter =
             Token(c => "01234567890#|!-".Contains(c));
 
-        static Parser<char, string[]> Ranges =
+        static readonly Parser<char, string[]> Ranges =
             RangeCharacter
             .Until(Whitespace)
             .Select(c => string.Concat(c))

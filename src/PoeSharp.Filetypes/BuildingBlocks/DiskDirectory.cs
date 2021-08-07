@@ -96,7 +96,6 @@ namespace PoeSharp.Filetypes.BuildingBlocks
 
         public void Delete() => _dirInfo.Delete(true);
 
-        public static implicit operator DiskDirectory(string directory) =>
-            new DiskDirectory(directory);
+        public static implicit operator DiskDirectory(string directory) => new(directory);
     }
 }
