@@ -59,7 +59,6 @@ namespace PoeSharp.Filetypes.Ggpk
             };
         }
 
-        public static implicit operator GgpkFileSystem(string filePath) =>
-            new GgpkFileSystem(filePath);
+        public static implicit operator GgpkFileSystem(string filePath) => new(filePath);
     }
 }
