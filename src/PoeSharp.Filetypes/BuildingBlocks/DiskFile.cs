@@ -115,8 +115,7 @@ namespace PoeSharp.Filetypes.BuildingBlocks
             return dir == null || fi.Name != name ? (fi.Name, new DiskDirectory(fi.DirectoryName!)) : (name, dir);
         }
 
-        public static implicit operator DiskFile(string fullName) =>
-            new DiskFile(fullName);
+        public static implicit operator DiskFile(string fullName) => new(fullName);
 
         public static implicit operator string(DiskFile file) =>
             IoPath.Combine(file.Path, file.Name);

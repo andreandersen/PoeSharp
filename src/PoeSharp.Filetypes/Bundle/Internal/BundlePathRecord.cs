@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 using System.Text;
+
+using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace PoeSharp.Filetypes.Bundle.Internal
 {
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
-    internal readonly struct BundlePathInfo : IEquatable<BundlePathInfo>
+    internal readonly struct BundlePathRecord : IEquatable<BundlePathRecord>
     {
         public readonly ulong Hash;
         public readonly int PayloadOffset;
@@ -15,45 +16,49 @@ namespace PoeSharp.Filetypes.Bundle.Internal
         public readonly int PayloadRecursiveSize;
 
         public override bool Equals(object? obj) =>
-            obj is BundlePathInfo representation && Equals(representation);
+            obj is BundlePathRecord representation && Equals(representation);
 
-        public bool Equals(BundlePathInfo other) => Hash == other.Hash;
+        public bool Equals(BundlePathRecord other) => Hash == other.Hash;
         public override int GetHashCode() => HashCode.Combine(Hash);
 
-        public static bool operator ==(BundlePathInfo left, BundlePathInfo right) =>
+        public static bool operator ==(BundlePathRecord left, BundlePathRecord right) =>
             left.Equals(right);
-        public static bool operator !=(BundlePathInfo left, BundlePathInfo right) =>
+        public static bool operator !=(BundlePathRecord left, BundlePathRecord right) =>
             !(left == right);
 
-        public ImmutableArray<PathString> MapFilenames(Span<byte> data)
+
+        public PathString[] MapFilenames(Span<byte> innerBundle)
         {
             const byte nullTerm = 0;
             var isBasePhase = false;
 
-            var d = data[PayloadOffset..(PayloadOffset + PayloadSize)];
-            
+            var data = innerBundle.Slice(PayloadOffset, PayloadSize);
+
             var bases = new List<string>();
             var results = new List<PathString>();
 
-            while (d.Length > 0)
+            while (data.Length > 0)
             {
-                var command = d[..4].To<int>();
-                d = d[4..];
-                
+                var command = data.ConsumeTo<int>();
+
                 if (command == 0)
                 {
                     isBasePhase = !isBasePhase;
                     if (isBasePhase)
+                    {
                         bases.Clear();
+                    }
 
                     continue;
                 }
 
-                var nameLen = d.IndexOf(nullTerm);
-                var path = Encoding.ASCII.GetString(d[..nameLen]);
+                var nameLen = data.IndexOf(nullTerm);
+                var path = Encoding.ASCII.GetString(data.Slice(0, nameLen));
+                
+                data = data.Slice(nameLen + 1);
 
-                d = d[(nameLen + 1)..];
                 var index = command - 1;
+                
                 if (index < bases.Count)
                 {
                     path = $"{bases[index]}{path}";
@@ -69,7 +74,8 @@ namespace PoeSharp.Filetypes.Bundle.Internal
                 }
             }
 
-            return results.ToImmutableArray();
+            return results.ToArray();
         }
     }
+
 }

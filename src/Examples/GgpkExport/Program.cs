@@ -60,7 +60,7 @@ namespace GgpkExport
 
         private static DateTime _startTime;
         private static int _currentTop;
-        private static readonly object _consoleLock = new object();
+        private static readonly object _consoleLock = new();
         private static readonly char[] _spinner = new[] { '|', '/', '-', '\\' };
         private static int _spinnerPos;
 

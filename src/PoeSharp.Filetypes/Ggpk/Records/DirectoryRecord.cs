@@ -23,7 +23,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
                 .FromUnicodeBytesToUtf8()
                 .CopyTo(name);
 
-            Name = name.ToArray();
+            Name = new string(name);
 
             var offset = 40 + nameLength * 2;
 
@@ -46,8 +46,8 @@ namespace PoeSharp.Filetypes.Ggpk.Records
         public long Offset { get; }
         public int Length { get; }
 
-        public ReadOnlyMemory<DirectoryEntry> Entries { get; }
-        public ReadOnlyMemory<byte> Hash { get; }
-        public ReadOnlyMemory<char> Name { get; }
+        public DirectoryEntry[] Entries { get; }
+        public byte[] Hash { get; }
+        public string Name { get; }
     }
 }

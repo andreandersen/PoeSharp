@@ -2,8 +2,8 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 
+using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
-using Microsoft.Toolkit.HighPerformance.Extensions;
 
 namespace PoeSharp.Filetypes
 {
@@ -29,7 +29,7 @@ namespace PoeSharp.Filetypes
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SpanOwner<T> Read<T>(
             this Stream stream, int elements)
-            where T : struct
+            where T : unmanaged
         {
             var spanOwner = SpanOwner<T>.Allocate(elements);
             stream.Read(spanOwner.Span.Cast<T, byte>());

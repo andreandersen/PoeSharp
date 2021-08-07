@@ -20,7 +20,9 @@ namespace PoeSharp.Filetypes.Ggpk
 
         IDirectory IFileSystemEntry.Parent => Parent;
 
-        internal GgpkFile(FileRecord fileRecord, GgpkDirectory parent)
+        internal GgpkFile(
+            FileRecord fileRecord,
+            GgpkDirectory parent)
         {
             Parent = parent;
             Name = fileRecord.Name.ToString();
@@ -38,7 +40,9 @@ namespace PoeSharp.Filetypes.Ggpk
             return dest;
         }
 
-        public void CopyToStream(Stream destinationStream, long start = 0, long length = 0)
+        public void CopyToStream(
+            Stream destinationStream,
+            long start = 0, long length = 0)
         {
             if (length == 0)
                 length = Size;
@@ -47,8 +51,19 @@ namespace PoeSharp.Filetypes.Ggpk
             source.CopyTo(destinationStream, _offset + start, length);
         }
 
-        public Span<byte> AsSpan(long start = 0, long length = 0) => throw new NotImplementedException();
+        public Span<byte> AsSpan(long start = 0, long length = 0)
+        {
+            if (length == 0)
+                length = Size;
+
+            var source = Parent.Root.Stream;
+            source.Position = _offset + start;
+            var buff = new Span<byte>(new byte[length]);
+            source.Read(buff);
+            return buff;
+        }
         
-        public Task<Stream> GetStreamAsync() => throw new NotImplementedException();
+        public Task<Stream> GetStreamAsync() =>
+            throw new NotImplementedException();
     }
 }

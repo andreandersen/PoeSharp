@@ -9,13 +9,13 @@ namespace PoeSharp.Filetypes.Dat
     {
         public DatFileIndex(IDirectory directory, DatSpecIndex specIndex, bool lazyLoad = true)
         {
-            var files = directory.Files.Where(c => c.Name.EndsWith(".dat")).ToArray();
+            var files = directory.Files.Values.Where(c => c.Name.EndsWith(".dat")).ToArray();
             if (files.Length == 0)
             {
-                var dataDirectory = directory.Directories.FirstOrDefault(c => c.Name == "Data");
+                var dataDirectory = directory.Directories.Values.FirstOrDefault(c => c.Name == "Data");
                 if (dataDirectory != null)
                 {
-                    files = dataDirectory.Files.Where(c => c.Name.EndsWith(".dat")).ToArray();
+                    files = dataDirectory.Files.Values.Where(c => c.Name.EndsWith(".dat")).ToArray();
                 }
             }
 

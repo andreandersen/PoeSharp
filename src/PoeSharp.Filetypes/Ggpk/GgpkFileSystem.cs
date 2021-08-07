@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+
+using PoeSharp.Filetypes.BuildingBlocks;
 using PoeSharp.Filetypes.Ggpk.Records;
 
 namespace PoeSharp.Filetypes.Ggpk
@@ -11,9 +13,12 @@ namespace PoeSharp.Filetypes.Ggpk
 
         internal FileStream Stream => _threadStream.Value!;
 
-        public string Path;
-        public IReadOnlyDictionary<string, GgpkDirectory> Directories => Root.Directories;
-        public IReadOnlyDictionary<string, GgpkFile> Files => Root.Files;
+        public string Path { get; }
+
+        public IReadOnlyDictionary<string, IDirectory> Directories => 
+            Root.Directories;
+
+        public IReadOnlyDictionary<string, IFile> Files => Root.Files;
 
         public GgpkDirectory Root { get; }
 
@@ -36,7 +41,7 @@ namespace PoeSharp.Filetypes.Ggpk
 
             var ggpk = new GgpkRecord(Stream, ggpkHeader.Length);
             DirectoryRecord? dirRecord = default;
-            foreach (var offset in ggpk.RecordOffsets.Span)
+            foreach (var offset in ggpk.RecordOffsets)
             {
                 Stream.Position = offset;
                 RecordHeader header = Stream.ReadRecordHeader();
@@ -49,9 +54,12 @@ namespace PoeSharp.Filetypes.Ggpk
 
             return dirRecord switch
             {
-                null => throw ParseException.GgpkParseFailure,
-                _ => GgpkDirectory.CreateRootDirectory(dirRecord, this),
+                not null => GgpkDirectory.CreateRootDirectory(dirRecord, this),
+                _ => throw ParseException.GgpkParseFailure,
             };
         }
+
+        public static implicit operator GgpkFileSystem(string filePath) =>
+            new GgpkFileSystem(filePath);
     }
 }

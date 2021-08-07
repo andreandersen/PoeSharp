@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace PoeSharp.Filetypes.Bundle.Internal
 {
@@ -9,13 +10,36 @@ namespace PoeSharp.Filetypes.Bundle.Internal
 
         public static ulong Hash64(ReadOnlySpan<byte> buffer)
         {
-            ulong result = FNV64_OFFSETBASIS;
+            var result = FNV64_OFFSETBASIS;
             foreach (var b in buffer)
             {
                 result = FNV64_PRIME * (result ^ b);
             }
 
             return result;
+        }
+    }
+
+    internal static class Fnv1aHash64Extension
+    {
+        public static ulong FnvHash(this ReadOnlySpan<char> str)
+        {
+            var len = str.Length;
+            if (str[len - 1] == '/')
+                len += 1;
+            else
+                len += 2;
+
+            Span<char> buf = stackalloc char[len];
+            str.ToLowerInvariant(buf);
+            buf[len - 1] = '+';
+            buf[len - 2] = '+';
+
+            var blen = Encoding.UTF8.GetByteCount(buf);
+            Span<byte> bytes = stackalloc byte[blen];
+            Encoding.UTF8.GetBytes(buf, bytes);
+
+            return Fnv1aHash64.Hash64(bytes);
         }
     }
 }

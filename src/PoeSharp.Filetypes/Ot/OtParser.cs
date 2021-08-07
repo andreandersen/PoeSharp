@@ -36,7 +36,7 @@ namespace PoeSharp.Filetypes.Ot
             from closing in Parse.Char('}').Token()
             select new OtObject(identifier, pairs.Select(c =>
                 new KeyValuePair<string, string>(c.Identifier,
-                    c.Value.Value.ToString())).ToList());
+                    c.Value.Value.ToString()!)).ToList());
 
         private static readonly Parser<Pair> PairParser =
             from identifier in Identifier
@@ -54,8 +54,8 @@ namespace PoeSharp.Filetypes.Ot
             from objects in ObjectParser.Many()
             let version = props.FirstOrDefault(c => c.Identifier == "version")
             let extends = props.FirstOrDefault(c => c.Identifier == "extends")
-            select new OtFile(version?.Value.Value.ToString(),
-                (string)(extends?.Value.Value), objects.ToList());
+            select new OtFile(version?.Value?.Value?.ToString() ?? string.Empty,
+                (string)(extends?.Value?.Value ?? string.Empty), objects.ToList());
 
         public static Pair ParsePair(string value) =>
             PairParser.Parse(value);

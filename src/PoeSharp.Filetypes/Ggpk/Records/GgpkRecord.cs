@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-using Microsoft.Toolkit.HighPerformance.Extensions;
+using Microsoft.Toolkit.HighPerformance;
 
 namespace PoeSharp.Filetypes.Ggpk.Records
 {
@@ -25,7 +25,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
 
         public long Offset { get; }
         public int Length { get; }
-        public ReadOnlyMemory<char> Name => Memory<char>.Empty;
-        public Memory<long> RecordOffsets { get; }
+
+        public long[] RecordOffsets { get; }
     }
 }

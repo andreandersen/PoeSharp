@@ -1,15 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PoeSharp.Filetypes.Ot.SyntaxTree
 {
     public class OtFile
     {
         public OtFile(string version, string extends, 
-            IReadOnlyList<OtObject> objects)
+            IReadOnlyList<OtObject?> objects)
         {
+            Name = string.Empty;
             Version = version;
             Extends = extends;
-            Objects = objects;
+            Objects = objects == null ? 
+                Array.Empty<OtObject>().ToList() : 
+                objects.Where(p => p is not null).ToList()!;
         }
 
         public string Extends { get; }

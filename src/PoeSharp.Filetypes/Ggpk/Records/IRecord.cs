@@ -9,7 +9,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
         /// <summary>
         /// UTF-8 representation in bytes
         /// </summary>
-        ReadOnlyMemory<char> Name { get; }
+        string Name => string.Empty;
 
         long Offset { get; }
     }

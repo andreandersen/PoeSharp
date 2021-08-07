@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+using PoeSharp.Filetypes.BuildingBlocks;
+
 namespace PoeSharp.Filetypes.Ggpk.Exporter
 {
     public class GgpkExporter
@@ -16,10 +18,10 @@ namespace PoeSharp.Filetypes.Ggpk.Exporter
         public Task Export(GgpkFileSystem ggpk, ExportConfig config) =>
             Export(ggpk.Directories.Values, config);
 
-        public Task Export(GgpkDirectory ggpkDir, ExportConfig config) =>
+        public Task Export(IDirectory ggpkDir, ExportConfig config) =>
             Export(new[] { ggpkDir }, config);
 
-        public async Task Export(IEnumerable<GgpkDirectory> ggpkDirs, ExportConfig config)
+        public async Task Export(IEnumerable<IDirectory> ggpkDirs, ExportConfig config)
         {
             var status = new ExportStatus();
             if (!config.Shallow)
@@ -91,16 +93,16 @@ namespace PoeSharp.Filetypes.Ggpk.Exporter
         }
 
         private static void FillQueue(
-            ConcurrentQueue<GgpkDirectory> q,
-            IEnumerable<GgpkDirectory> dirs)
+            ConcurrentQueue<IDirectory> q,
+            IEnumerable<IDirectory> dirs)
         {
             foreach (var dir in dirs)
                 q.Enqueue(dir);
         }
 
         private static void FillQueue(
-            ConcurrentQueue<GgpkFile> q,
-            IEnumerable<GgpkFile> files)
+            ConcurrentQueue<IFile> q,
+            IEnumerable<IFile> files)
         {
             foreach (var file in files)
                 q.Enqueue(file);

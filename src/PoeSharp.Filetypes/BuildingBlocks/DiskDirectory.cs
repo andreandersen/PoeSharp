@@ -10,9 +10,12 @@ namespace PoeSharp.Filetypes.BuildingBlocks
     {
         private readonly DirectoryInfo _dirInfo;
 
-        public DiskDirectory(string name, IDirectory? parent = null, bool createIfNotExists = false)
+        public DiskDirectory(
+            string name, IDirectory? parent = null,
+            bool createIfNotExists = false)
         {
-            _dirInfo = new DirectoryInfo(IoPath.Combine(parent?.Path ?? string.Empty, name));
+            _dirInfo = new DirectoryInfo(
+                IoPath.Combine(parent?.Path ?? string.Empty, name));
 
             if (_dirInfo.Parent != null)
                 Parent = new DiskDirectory(_dirInfo.Parent.FullName);
@@ -21,30 +24,38 @@ namespace PoeSharp.Filetypes.BuildingBlocks
 
             if (!createIfNotExists || _dirInfo.Exists) return;
 
-            Directory.CreateDirectory(_dirInfo.FullName);
+            System.IO.Directory.CreateDirectory(_dirInfo.FullName);
             _dirInfo.Refresh();
         }
 
         public IDirectory? Parent { get; }
         public string Name { get; }
 
-        public IEnumerable<IDirectory> Directories
+        public IReadOnlyDictionary<string, IDirectory> Directories
         {
             get
             {
                 if (!_dirInfo.Exists)
-                    return new List<IDirectory>();
-                return _dirInfo.GetDirectories().Select(c => new DiskDirectory(c.Name, this));
+                    return new Dictionary<string, IDirectory>();
+
+                return
+                    _dirInfo.GetDirectories().Select(
+                    c => (IDirectory)new DiskDirectory(c.Name, this))
+                    .ToDictionary(p => p.Name);
             }
         }
 
-        public IEnumerable<IFile> Files
+        public IReadOnlyDictionary<string, IFile> Files
         {
             get
             {
                 if (!_dirInfo.Exists)
-                    return new List<IFile>();
-                return _dirInfo.GetFiles().Select(c => new DiskFile(c.Name, this));
+                    return new Dictionary<string, IFile>();
+
+                return
+                    _dirInfo.GetFiles().Select(
+                    c => (IFile)new DiskFile(c.Name, this))
+                    .ToDictionary(p => p.Name);
             }
         }
 
@@ -54,28 +65,18 @@ namespace PoeSharp.Filetypes.BuildingBlocks
         {
             get
             {
-                var dirMatch = Directories.FirstOrDefault(c => c.Name == index);
-                return dirMatch == null
-                    ? Files.FirstOrDefault(c => c.Name == index)
-                    : (IFileSystemEntry)dirMatch;
+                if (Directories.TryGetValue(index, out var dir))
+                    return dir;
+
+                if (Files.TryGetValue(index, out var file))
+                    return file;
+
+                return null;
             }
         }
 
-        public void CopyTo(IWritableDirectory destination)
-        {
-            foreach (var file in Files)
-            {
-                destination.GetOrCreateFile(file.Name).CopyFrom(file);
-            }
-
-            foreach (var dir in Directories)
-            {
-                var subDir = destination.GetOrCreateDirectory(dir.Name);
-                dir.CopyTo(subDir);
-            }
-        }
-
-        public IWritableFile GetOrCreateFile(string name) => new DiskFile(name, this);
+        public IWritableFile GetOrCreateFile(string name) =>
+            new DiskFile(name, this);
 
         public IWritableDirectory GetOrCreateDirectory(string name)
         {

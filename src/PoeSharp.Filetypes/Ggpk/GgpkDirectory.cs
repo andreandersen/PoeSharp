@@ -5,16 +5,19 @@ using System.Diagnostics;
 using PoeSharp.Filetypes.BuildingBlocks;
 using PoeSharp.Filetypes.Ggpk.Records;
 
+
 namespace PoeSharp.Filetypes.Ggpk
 {
     [DebuggerDisplay("{Path}")]
     public sealed class GgpkDirectory : IDirectory
     {
-        private readonly object _entriesLock = new object();
+        private readonly object _entriesLock = new();
         private bool _hasEvaluatedEntries;
-        private readonly ReadOnlyMemory<DirectoryEntry> _entries;
-        private readonly Dictionary<string, GgpkDirectory> _directories = new Dictionary<string, GgpkDirectory>();
-        private readonly Dictionary<string, GgpkFile> _files = new Dictionary<string, GgpkFile>();
+
+        private readonly DirectoryEntry[] _entries;
+        private readonly Dictionary<string, IDirectory> _directories = new();
+        private readonly Dictionary<string, IFile> _files = new();
+
         internal GgpkFileSystem Root { get; }
 
         public string Name { get; }
@@ -23,7 +26,7 @@ namespace PoeSharp.Filetypes.Ggpk
 
         public DirectoryRecord Record { get; }
 
-        public IReadOnlyDictionary<string, GgpkDirectory> Directories
+        public IReadOnlyDictionary<string, IDirectory> Directories
         {
             get
             {
@@ -31,7 +34,7 @@ namespace PoeSharp.Filetypes.Ggpk
                 return _directories;
             }
         }
-        public IReadOnlyDictionary<string, GgpkFile> Files
+        public IReadOnlyDictionary<string, IFile> Files
         {
             get
             {
@@ -40,15 +43,21 @@ namespace PoeSharp.Filetypes.Ggpk
             }
         }
 
-        IEnumerable<IDirectory> IDirectory.Directories => throw new NotImplementedException();
+        public IFileSystemEntry this[string index]
+        {
+            get
+            {
+                if (Files.TryGetValue(index, out var f))
+                    return f;
 
-        IEnumerable<IFile> IDirectory.Files => throw new NotImplementedException();
+                if (Directories.TryGetValue(index, out var d))
+                    return d;
 
-        public IFileSystemEntry this[string index] => throw new NotImplementedException();
+                throw new ArgumentException("Entry not found");
+            }
+        }
 
-        private GgpkDirectory(
-                    DirectoryRecord dirRecord,
-                    GgpkFileSystem root)
+        private GgpkDirectory(DirectoryRecord dirRecord, GgpkFileSystem root)
         {
             Record = dirRecord;
             Name = dirRecord.Name.ToString();
@@ -57,8 +66,8 @@ namespace PoeSharp.Filetypes.Ggpk
             Path = string.Empty;
 
             _entries = dirRecord.Entries;
-            _files = new Dictionary<string, GgpkFile>();
-            _directories = new Dictionary<string, GgpkDirectory>();
+            _files = new Dictionary<string, IFile>();
+            _directories = new Dictionary<string, IDirectory>();
         }
 
         private GgpkDirectory(DirectoryRecord dirRecord, GgpkDirectory parent)
@@ -72,7 +81,6 @@ namespace PoeSharp.Filetypes.Ggpk
         }
 
 
-
         private void EnsureEntriesInitialized()
         {
             if (_hasEvaluatedEntries)
@@ -84,7 +92,7 @@ namespace PoeSharp.Filetypes.Ggpk
                     return;
 
                 var stream = Root.Stream;
-                foreach (var entry in _entries.Span)
+                foreach (var entry in _entries)
                 {
                     stream.Position = entry.Offset;
                     var record = stream.ReadRecord();
@@ -108,11 +116,8 @@ namespace PoeSharp.Filetypes.Ggpk
         }
 
         internal static GgpkDirectory CreateRootDirectory(
-            DirectoryRecord rootDirRecord, GgpkFileSystem fileSystem)
-        {
-            return new GgpkDirectory(rootDirRecord, fileSystem);
-        }
+            DirectoryRecord rootDirRecord, GgpkFileSystem fileSystem) =>
+            new(rootDirRecord, fileSystem);
 
-        public void CopyTo(IWritableDirectory destination) => throw new NotImplementedException();
     }
 }

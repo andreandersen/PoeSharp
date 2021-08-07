@@ -25,6 +25,41 @@ namespace PoeSharp.Filetypes
             return ret;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Span<T> Consume<T>(this ref Span<T> buf, int length) where T : unmanaged
+        {
+            var ret = buf.Slice(0, length);
+            buf = buf.Slice(length);
+            return ret;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Span<T> ConsumeTo<T>(
+            this ref Span<byte> buf, int elements) 
+            where T : unmanaged
+        {
+            var size = Unsafe.SizeOf<T>();
+            var t = buf.Slice(0, elements * size);
+            var ret = MemoryMarshal.Cast<byte, T>(t);
+            buf = buf.Slice(elements * size);
+            return ret;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ReadOnlySpan<char> FromUnicodeBytesToUtf8
+            (this in Span<byte> utf16bytes) => utf16bytes.Length == 0 ?
+                ReadOnlySpan<char>.Empty :
+                Encoding.Unicode.GetString(utf16bytes);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ToUnicodeText(this Span<byte> bytes) =>
+            Encoding.Unicode.GetString(bytes);
+
+
+
+
+
+
         //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         //public static object To(this Span<byte> buf, TypeCode type)
         //{
@@ -47,24 +82,5 @@ namespace PoeSharp.Filetypes
 
         //    return ret;
         //}
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ReadOnlySpan<char> FromUnicodeBytesToUtf8
-            (this in Span<byte> utf16bytes) => utf16bytes.Length == 0 ?
-                ReadOnlySpan<char>.Empty :
-                Encoding.Unicode.GetString(utf16bytes);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Span<byte> FromUnicodeBytesToUtf8(
-            this in ReadOnlySpan<byte> utf16bytes) =>
-            FromUnicodeBytesToUtf8(utf16bytes);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToUnicodeText(this Span<byte> bytes) =>
-            Encoding.Unicode.GetString(bytes);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ToUnicodeText(this ReadOnlySpan<byte> bytes) =>
-            Encoding.Unicode.GetString(bytes);
     }
 }

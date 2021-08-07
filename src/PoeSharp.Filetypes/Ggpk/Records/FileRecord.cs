@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-using Microsoft.Toolkit.HighPerformance.Extensions;
+using Microsoft.Toolkit.HighPerformance;
 
 namespace PoeSharp.Filetypes.Ggpk.Records
 {
@@ -20,9 +20,8 @@ namespace PoeSharp.Filetypes.Ggpk.Records
                 .Slice(0, 32)
                 .ToArray();
 
-            Name = bytes[32..^2]
-                .FromUnicodeBytesToUtf8()
-                .ToArray();
+            Name = new string(bytes[32..^2]
+                .FromUnicodeBytesToUtf8());
 
             DataOffset = Offset + 12 + bytes.Length;
             DataLength = Length - 12 - bytes.Length;
@@ -35,7 +34,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
         public int DataLength { get; }
         public int Length { get; }
 
-        public ReadOnlyMemory<byte> Hash { get; }
-        public ReadOnlyMemory<char> Name { get; }
+        public byte[] Hash { get; }
+        public string Name { get; }
     }
 }

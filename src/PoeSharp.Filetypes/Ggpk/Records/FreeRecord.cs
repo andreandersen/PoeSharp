@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-using Microsoft.Toolkit.HighPerformance.Extensions;
+using Microsoft.Toolkit.HighPerformance;
 
 namespace PoeSharp.Filetypes.Ggpk.Records
 {
@@ -11,6 +11,7 @@ namespace PoeSharp.Filetypes.Ggpk.Records
         {
             Length = length;
             Offset = stream.Position - 8;
+
             NextFreeRecord = stream.Read<long>();
 
             stream.Seek(length - 16, SeekOrigin.Current);
@@ -19,6 +20,5 @@ namespace PoeSharp.Filetypes.Ggpk.Records
         public long NextFreeRecord { get; }
         public long Offset { get; }
         public int Length { get; }
-        public ReadOnlyMemory<char> Name => Memory<char>.Empty;
     }
 }

@@ -23,14 +23,16 @@ namespace PoeSharp.Filetypes.BuildingBlocks
         ///     the beginning of the stream.
         /// </param>
         /// <param name="length">Optional. Length to copy. Default is end of stream.</param>
+        [Obsolete("Might be removed, or made into extension method. Not sure yet")]
         void CopyToStream(Stream destinationStream, long start = default,
             long length = default);
 
         Span<byte> AsSpan(long start = default, long length = default);
 
-
+        [Obsolete("Might be removed, or made into extension method. Not sure yet")]
         Stream GetStream();
 
+        [Obsolete("Might be removed, or made into extension method. Not sure yet")]
         Task<Stream> GetStreamAsync();
     }
 }

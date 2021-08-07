@@ -11,12 +11,12 @@ namespace PoeSharp.Filetypes.BuildingBlocks
         /// <summary>
         ///     Child directories
         /// </summary>
-        IEnumerable<IDirectory> Directories { get; }
+        IReadOnlyDictionary<string, IDirectory> Directories { get; }
 
         /// <summary>
         ///     Files in directory
         /// </summary>
-        IEnumerable<IFile> Files { get; }
+        IReadOnlyDictionary<string, IFile> Files { get; }
 
         /// <summary>
         ///     Gets a file system entry (this can be either a <see cref="IDirectory" /> or
@@ -26,6 +26,18 @@ namespace PoeSharp.Filetypes.BuildingBlocks
         /// <returns>Returns the FileSystemEntry or null when not found.</returns>
         IFileSystemEntry? this[string index] { get; }
 
-        void CopyTo(IWritableDirectory destination);
+        public void CopyTo(IWritableDirectory destination)
+        {
+            foreach (var file in Files.Values)
+            {
+                destination.GetOrCreateFile(file.Name).CopyFrom(file);
+            }
+
+            foreach (var dir in Directories.Values)
+            {
+                var subDir = destination.GetOrCreateDirectory(dir.Name);
+                dir.CopyTo(subDir);
+            }
+        }
     }
 }

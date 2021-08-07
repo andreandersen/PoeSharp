@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
+using PoeSharp.Filetypes.BuildingBlocks;
+
 namespace PoeSharp.Filetypes.Ggpk.Exporter
 {
     internal class ExportStatus
@@ -15,12 +17,12 @@ namespace PoeSharp.Filetypes.Ggpk.Exporter
 
         public ExportStatus()
         {
-            DirQueue = new ConcurrentQueue<GgpkDirectory>();
-            FileQueue = new ConcurrentQueue<GgpkFile>();
+            DirQueue = new ConcurrentQueue<IDirectory>();
+            FileQueue = new ConcurrentQueue<IFile>();
         }
 
-        public ConcurrentQueue<GgpkDirectory> DirQueue { get; }
-        public ConcurrentQueue<GgpkFile> FileQueue { get; }
+        public ConcurrentQueue<IDirectory> DirQueue { get; }
+        public ConcurrentQueue<IFile> FileQueue { get; }
 
         public bool IsEnumerationDone { get; internal set; }
         public int FilesWrittenCount  => _filesWrittenCount;
@@ -35,7 +37,7 @@ namespace PoeSharp.Filetypes.Ggpk.Exporter
             Interlocked.Add(ref _filesWrittenSize, bytes);
         }
 
-        public void ReportFilesDiscovered(IEnumerable<GgpkFile> files)
+        public void ReportFilesDiscovered(IEnumerable<IFile> files)
         {
             var fileCount = files.Count();
             var fileSize = files.Sum(c => c.Size);

@@ -8,19 +8,14 @@ namespace PoeSharp.Filetypes.Bundle.Internal
         public PathString(string path)
         {
             Path = path;
-
-            var computePath = path
-                .ToLowerInvariant()
-                .TrimEnd('/') + "++";
-
-            var toHash = Encoding.UTF8
-                .GetBytes(computePath).AsSpan();
-
-            Hash = Fnv1aHash64.Hash64(toHash);
+            var e = (ReadOnlySpan<char>)path;
+            Hash = e.FnvHash();
         }
 
         public readonly ulong Hash;
         public readonly string Path;
+
+        public override string ToString() => Path;
 
         public bool Equals(PathString other) => 
             Hash == other.Hash;

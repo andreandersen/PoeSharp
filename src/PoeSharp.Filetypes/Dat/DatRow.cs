@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 
+
+using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Extensions;
 
 namespace PoeSharp.Filetypes.Dat
@@ -53,6 +52,7 @@ namespace PoeSharp.Filetypes.Dat
 
                 var data = bytes.Slice(_parent.DataOffset + offset, elements * Unsafe.SizeOf<T>());
                 var ret = data.Cast<byte, T>();
+
                 return ret.ToArray();
             }
 
