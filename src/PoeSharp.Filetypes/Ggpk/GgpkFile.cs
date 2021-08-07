@@ -64,6 +64,6 @@ namespace PoeSharp.Filetypes.Ggpk
         }
         
         public Task<Stream> GetStreamAsync() =>
-            throw new NotImplementedException();
+            Task.FromResult(GetStream());
     }
 }
