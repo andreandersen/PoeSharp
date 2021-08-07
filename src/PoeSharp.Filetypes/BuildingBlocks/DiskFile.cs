@@ -108,7 +108,7 @@ namespace PoeSharp.Filetypes.BuildingBlocks
 
         public Task<Stream> GetStreamAsync() => Task.FromResult(GetStream());
 
-        private (string Name, DiskDirectory Path) EnsureNameAndPathSeparation(string name,
+        private static (string Name, DiskDirectory Path) EnsureNameAndPathSeparation(string name,
             DiskDirectory? dir)
         {
             var fi = new FileInfo(IoPath.Combine(dir?.Path ?? "", name));
