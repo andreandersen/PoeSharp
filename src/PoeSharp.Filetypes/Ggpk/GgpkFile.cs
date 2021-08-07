@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 using PoeSharp.Filetypes.BuildingBlocks;
 using PoeSharp.Filetypes.Ggpk.Records;
@@ -35,8 +32,8 @@ namespace PoeSharp.Filetypes.Ggpk
         {
             var source = Parent.Root.Stream;
             var dest = new MemoryStream();
-            source.CopyTo(dest);
-            source.Position = 0;
+            CopyToStream(dest);
+            dest.Position = 0;
             return dest;
         }
 
@@ -62,7 +59,7 @@ namespace PoeSharp.Filetypes.Ggpk
             source.Read(buff);
             return buff;
         }
-        
+
         public Task<Stream> GetStreamAsync() =>
             Task.FromResult(GetStream());
     }
