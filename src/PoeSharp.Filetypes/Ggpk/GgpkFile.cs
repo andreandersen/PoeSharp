@@ -30,7 +30,6 @@ namespace PoeSharp.Filetypes.Ggpk
 
         public Stream GetStream()
         {
-            var source = Parent.Root.Stream;
             var dest = new MemoryStream();
             CopyToStream(dest);
             dest.Position = 0;
