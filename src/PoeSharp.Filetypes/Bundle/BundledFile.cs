@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 using PoeSharp.Filetypes.BuildingBlocks;
 using PoeSharp.Filetypes.Bundle.Internal;
@@ -36,18 +33,35 @@ namespace PoeSharp.Filetypes.Bundle
             Parent = parent;
         }
 
-        public Span<byte> AsSpan(long start = 0, long length = 0) 
-        {
-            return _bundleIndex.GetContents(_fileRecord);
-        }
+        public Span<byte> AsSpan(long start = 0, long length = 0) => _bundleIndex.GetContents(_fileRecord);
 
         public void CopyToStream(Stream destinationStream, long start = 0, long length = 0) =>
-            throw new NotImplementedException();
+            destinationStream.Write(AsSpan());
 
-        public Stream GetStream() =>
-            throw new NotImplementedException();
+        /// <summary>
+        /// Decompresses the content from the bundle and returns a MemoryStream.
+        /// </summary>
+        /// <remarks>
+        /// Consider using AsSpan() or CopyToStream() instead.
+        /// </remarks>
+        /// <returns></returns>
+        public Stream GetStream()
+        {
+            var memoryStream = new MemoryStream();
+            memoryStream.Write(AsSpan());
+            memoryStream.Position = 0;
 
+            return memoryStream;
+        }
+
+        /// <summary>
+        /// Decompresses the content from the bundle and returns a MemoryStream.
+        /// </summary>
+        /// <remarks>
+        /// Consider using AsSpan() or CopyToStream() instead.
+        /// </remarks>
+        /// <returns></returns>
         public Task<Stream> GetStreamAsync() =>
-            throw new NotImplementedException();
+            Task.FromResult(GetStream());
     }
 }
