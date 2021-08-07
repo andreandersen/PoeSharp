@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0</TargetFrameworks>
+		<TargetFrameworks>net5.0;net6.0</TargetFrameworks>
 		<LangVersion>preview</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -13,10 +13,6 @@
 		<PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.0-preview1" />
 		<PackageReference Include="Pidgin" Version="2.5.0" />
 		<PackageReference Include="Sprache" Version="2.3.2-develop-00042" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-		<PackageReference Include="System.Text.Json" Version="5.0.0-rc.2.20475.5" />
 	</ItemGroup>
 
 	<ItemGroup>
