@@ -1,17 +1,13 @@
-﻿using System;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using PoeSharp.Filetypes.Ggpk.Records;
-
-namespace PoeSharp.Filetypes.Ggpk
+﻿namespace PoeSharp.Filetypes.Ggpk
 {
     internal static class StreamExtensions
     {
+        private static int _sizeOfRecordHeader = Unsafe.SizeOf<RecordHeader>();
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static RecordHeader ReadRecordHeader(this FileStream stream)
         {
-            Span<byte> headerBytes = new byte[8];
+            Span<byte> headerBytes = stackalloc byte[_sizeOfRecordHeader];
             stream.Read(headerBytes);
             return MemoryMarshal.Read<RecordHeader>(headerBytes);
         }

@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace PoeSharp.Filetypes.Bundle.Internal
+﻿namespace PoeSharp.Filetypes.Bundle.Internal
 {
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     internal readonly struct BundleFileRecord

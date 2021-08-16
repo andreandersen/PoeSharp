@@ -1,30 +1,30 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+		<TargetFramework>net6.0</TargetFramework>
+		<Platform>x64</Platform>
 		<LangVersion>preview</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<AnalysisLevel>latest</AnalysisLevel>
 		<Nullable>enable</Nullable>
+		<!--<IsTrimmable>true</IsTrimmable>-->
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.0-preview1" />
-		<PackageReference Include="Pidgin" Version="2.5.0" />
-		<PackageReference Include="Sprache" Version="2.3.2-develop-00042" />
+		<PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="*-*" />
+		<PackageReference Include="Sprache" Version="2.*-*" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Content Update="Bundle\lib\libooz.dll">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 		</Content>
-		<None Update="Bundle\lib\libooz.dll">
+		<None Update="Bundle\lib\libooz.so">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="Bundle\lib\oo2core_8_win64.dll">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<None Update="Bundle\lib\libooz.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 		<None Update="spec.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

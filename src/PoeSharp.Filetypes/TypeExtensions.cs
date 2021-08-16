@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-
-namespace PoeSharp.Filetypes
+﻿namespace PoeSharp.Filetypes
 {
     public static class TypeExtensions
     {

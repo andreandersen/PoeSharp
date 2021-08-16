@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿/*
+using System.Linq;
 
 using Pidgin;
 
@@ -54,3 +55,4 @@ namespace PoeSharp.Filetypes.StatDescriptions
         }
     }
 }
+*/

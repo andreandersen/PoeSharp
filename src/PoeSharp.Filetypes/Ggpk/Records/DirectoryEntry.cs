@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace PoeSharp.Filetypes.Ggpk.Records
+﻿namespace PoeSharp.Filetypes.Ggpk.Records
 {
     [StructLayout(LayoutKind.Auto, Pack = 0)]
     public readonly struct DirectoryEntry

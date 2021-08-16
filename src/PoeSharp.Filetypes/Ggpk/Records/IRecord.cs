@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PoeSharp.Filetypes.Ggpk.Records
+﻿namespace PoeSharp.Filetypes.Ggpk.Records
 {
     public interface IRecord
     {

@@ -1,169 +1,221 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-
-using PoeSharp.Filetypes.Dat.Specification;
-
-namespace PoeSharp.Filetypes.Dat
+﻿namespace PoeSharp.Filetypes.Dat
 {
-    internal struct DirectDatValue
+    public readonly ref struct DatValue
     {
-        internal static object Create(ref Span<byte> buf, TypeCode tc)
-        {
-            var v = tc switch
-            {
-                TypeCode.Boolean => buf.To<bool>(),
-                TypeCode.SByte =>   buf.To<sbyte>(),
-                TypeCode.Byte =>    buf.To<byte>(),
-                TypeCode.Int16 =>   buf.To<short>(),
-                TypeCode.UInt16 =>  buf.To<ushort>(),
-                TypeCode.Int32 =>   buf.To<int>(),
-                TypeCode.UInt32 =>  buf.To<uint>(),
-                TypeCode.Int64 =>   buf.To<long>(),
-                TypeCode.UInt64 =>  buf.To<ulong>(),
-                TypeCode.Single =>  buf.To<float>(),
-                TypeCode.Double =>  buf.To<double>(),
-                _ => ThrowHelper.NotSupported<object>()
-            };
-
-            return v;
-        }
-
-        internal static T Create<T>(ref Span<byte> buf)
-            where T : unmanaged => buf.To<T>();
-
         internal static readonly byte[] StringNullTerminator
             = { 0, 0, 0, 0 };
 
-        internal static string CreateString(ref Span<byte> buf, Span<byte> data)
+        private readonly DatRow _row;
+        private readonly ColumnDefinition _columnDefinition;
+        public ReadOnlySpan<byte> Data { get; }
+
+        public DatValue(in DatRow row, ReadOnlySpan<byte> data, ColumnDefinition colDef)
         {
-            var offset = buf.To<int>();
-            if (offset.IsNullValue() || offset > data.Length)
-            {
+            _row = row;
+            _columnDefinition = colDef;
+            Data = data;
+        }
+
+        public T GetPrimitive<T>() where T : unmanaged => Data.To<T>();
+
+        public T[] GetPrimitiveArray<T>() where T : unmanaged
+        {
+            var elementOffset = GetArrayDetails();
+            if (!elementOffset.HasValue)
+                return Array.Empty<T>();
+
+            (var elements, var offset) = elementOffset.Value;
+
+            return _row.Parent.ContentData
+                .Slice(offset, Unsafe.SizeOf<T>() * elements)
+                .Cast<byte, T>().ToArray();
+        }
+
+        public string GetString()
+        {
+            var offset = _row.Parent.Is64Bit ?
+                Data.Slice(0, 8).To<long>() : Data.To<int>();
+
+            if (offset.IsNullValue())
                 return string.Empty;
-            }
 
-            var dataBuf = data[offset..];
-            var dataLen = dataBuf.IndexOf(StringNullTerminator);
+            var dataBuf = _row.Parent.ContentData[(int)offset..];
 
-            if (dataLen == -1)
-                return string.Empty;
-
-            if (dataLen % 2 != 0)
-                dataLen++;
-
-            return dataBuf.Slice(0, dataLen).ToUnicodeText();
-        }
-    }
-
-    public readonly struct ReferencedDatValue
-    {
-        public int Value { get; }
-
-        internal ReferencedDatValue(
-            ref Span<byte> buf, ReadOnlySpan<byte> data,
-            DatFileIndex index, DatField field)
-        {
-            var offset = buf.ConsumeTo<int>();
-            Value = offset;
-            //if (offset.IsNullValue())
-            //{
-            //    Value = -1;
-            //    return;
-            //}
-
-            //if (field.DatType.IsGenericReference)
-            //{
-            //    Value = offset;
-            //    return;
-            //} else
-            //{
-            //    var sz = Unsafe.SizeOf<T
-            //    data.Slice(offset).
-            //}
-        }
-    }
-
-    internal readonly struct ListDatValue
-    {
-        public static object[] Create(
-            ref Span<byte> buf, Span<byte> data,
-            DatFileIndex idx, DatField field)
-        {
-            var tc = field.TypeCode;
-
-            return tc switch
-            {
-                TypeCode.Boolean => CreateSimple<bool>(ref buf, data),
-                TypeCode.SByte =>   CreateSimple<sbyte>(ref buf, data),
-                TypeCode.Byte =>    CreateSimple<byte>(ref buf, data),
-                TypeCode.Int16 =>   CreateSimple<short>(ref buf, data),
-                TypeCode.UInt16 =>  CreateSimple<ushort>(ref buf, data),
-                TypeCode.Int32 =>   CreateSimple<int>(ref buf, data),
-                TypeCode.UInt32 =>  CreateSimple<uint>(ref buf, data),
-                TypeCode.Int64 =>   CreateSimple<long>(ref buf, data),
-                TypeCode.UInt64 =>  CreateSimple<ulong>(ref buf, data),
-                TypeCode.Single =>  CreateSimple<float>(ref buf, data),
-                TypeCode.Double =>  CreateSimple<double>(ref buf, data),
-                TypeCode.String =>  CreateString(ref buf, data),
-                _ => ThrowHelper.NotSupported<object[]>()
-            };
+            return ExtractStringFromBytes(dataBuf);
         }
 
-        private static object[] CreateSimple<T>(
-            ref Span<byte> buf, Span<byte> data) where T : struct
+        public string[] GetStringArray()
         {
-            var elements = buf.ConsumeTo<int>();
-            var offset = buf.To<int>();
+            var elementOffset = GetArrayDetails();
+            if (!elementOffset.HasValue)
+                return Array.Empty<string>();
 
-            if (elements.IsNullValue() || offset.IsNullValue())
+            (var elements, var offset) = elementOffset.Value;
+
+            var result = new string[elements];
+
+            var buf = _row.Parent.ContentData;
+
+            if (_row.Parent.Is64Bit)
             {
-                return Array.Empty<object>();
+                var stringOffsets = buf
+                    .Slice(offset, elements * 8)
+                    .As<long>(elements);
+
+                for (int i = 0; i < elements; i++)
+                {
+                    result[i] = ExtractStringFromBytes(
+                        buf.Slice((int)stringOffsets[i]));
+                }
+            }
+            else
+            {
+                var stringOffsets = buf
+                    .Slice(offset, elements * 4)
+                    .As<int>(elements);
+
+                for (int i = 0; i < elements; i++)
+                {
+                    result[i] = ExtractStringFromBytes(
+                        buf.Slice(stringOffsets[i]));
+                }
             }
 
-            var vals = new object[elements];
-            var df = data;
-            var sz = Unsafe.SizeOf<T>();
-            for (var i = 0; i < elements; i++)
-            {
-                var elBuf = df.Slice(0, sz);
-                vals[i] = elBuf.To<T>();
-                df = df.Slice(sz);
-            }
-
-            return vals;
+            return result;
         }
 
-        private static object[] CreateString(
-            ref Span<byte> buf, Span<byte> data)
+        public DatReference? GetReference()
         {
-            var elements = buf.ConsumeTo<int>();
-            var offset = buf.To<int>();
+            long val = this;
+            if (val.IsNullValue())
+                return null;
 
-            if (elements.IsNullValue() || offset.IsNullValue())
-            {
-                return Array.Empty<object>();
-            }
+            var foreign = _columnDefinition.Type == ColumnType.ForeignRow;
+            return new DatReference((int)val,
+                _row,
+                _columnDefinition.Reference,
+                foreign);
+        }
 
-            var strings = new object[elements];
+        public DatReference[] GetReferenceArray()
+        {
+            var elementOffset = GetArrayDetails();
+            if (!elementOffset.HasValue)
+                return Array.Empty<DatReference>();
 
-            var df = data;
+            (var elements, var offset) = elementOffset.Value;
+
+            var foreign = _columnDefinition.Type == ColumnType.ForeignRow;
+            var values = new DatReference[elements];
+
+            var data = _row.Parent.ContentData[offset..];
+            var is64 = _row.Parent.Is64Bit;
 
             for (var i = 0; i < elements; i++)
             {
-                var strLen = df.IndexOf(
-                    DirectDatValue.StringNullTerminator);
+                var rowIndex = is64 ?
+                    data.Slice(i * 16, 16).Slice(0, 8).To<long>() :
+                    data.Slice(i * 8, 8).To<long>();
 
+                values[i] = new DatReference(
+                    (int)rowIndex, _row,
+                    _columnDefinition.Reference, foreign);
+            }
+
+            return values;
+        }
+
+        private (int Elements, int Offset)? GetArrayDetails()
+        {
+            int elements;
+            int offset;
+
+            if (_row.Parent.Is64Bit)
+            {
+                var lngElements = Data.Slice(0, 8).To<long>();
+                var lngOffset = Data.Slice(8, 8).To<long>();
+                if (lngElements.IsNullValue()
+                    || lngOffset.IsNullValue()
+                    || lngElements > int.MaxValue
+                    || lngOffset > int.MaxValue
+                    || lngElements < int.MinValue
+                    || lngOffset < int.MinValue
+                    || lngElements == 0)
+                {
+                    return null;
+                }
+
+                elements = (int)lngElements;
+                offset = (int)lngOffset;
+            }
+            else
+            {
+                elements = Data.Slice(0, 4).To<int>();
+                offset = Data.Slice(4, 4).To<int>();
+                if (elements.IsNullValue()
+                    || offset.IsNullValue()
+                    || elements == 0)
+                    return null;
+            }
+
+            return (elements, offset);
+        }
+
+        private string ExtractStringFromBytes(
+            ReadOnlySpan<byte> dataBuf)
+        {
+            var strLen = dataBuf.IndexOf(StringNullTerminator);
+            if (_row.Parent.DatType is DatType.Dat32 or DatType.Dat64)
+            {
                 if (strLen % 2 != 0)
                     strLen++;
 
-                strings[i] = data
-                    .Slice(0, strLen)
-                    .ToUnicodeText();
-
+                return Encoding.Unicode.GetString(dataBuf[..strLen]);
             }
+            else
+            {
+                if (strLen % 4 != 0)
+                    strLen += 3;
 
-            return strings;
+                return Encoding.UTF32.GetString(dataBuf[..strLen]);
+            }
+        }
+
+        public static implicit operator string(DatValue datVal) => datVal.GetString();
+        public static implicit operator ReadOnlySpan<char>(DatValue datVal) => datVal.GetString();
+        public static implicit operator bool(DatValue datVal) => datVal.GetPrimitive<bool>();
+        public static implicit operator short(DatValue datVal) => datVal.GetPrimitive<short>();
+        public static implicit operator ushort(DatValue datVal) => datVal.GetPrimitive<ushort>();
+        public static implicit operator int(DatValue datVal) => datVal.GetPrimitive<int>();
+        public static implicit operator uint(DatValue datVal) => datVal.GetPrimitive<uint>();
+        public static implicit operator long(DatValue datVal) => datVal.GetPrimitive<long>();
+        public static implicit operator ulong(DatValue datVal) => datVal.GetPrimitive<ulong>();
+        public static implicit operator float(DatValue datVal) => datVal.GetPrimitive<float>();
+        public static implicit operator double(DatValue datVal) => datVal.GetPrimitive<double>();
+
+        public static implicit operator bool[](DatValue datVal) => datVal.GetPrimitiveArray<bool>();
+        public static implicit operator short[](DatValue datVal) => datVal.GetPrimitiveArray<short>();
+        public static implicit operator ushort[](DatValue datVal) => datVal.GetPrimitiveArray<ushort>();
+        public static implicit operator int[](DatValue datVal) => datVal.GetPrimitiveArray<int>();
+        public static implicit operator uint[](DatValue datVal) => datVal.GetPrimitiveArray<uint>();
+        public static implicit operator long[](DatValue datVal) => datVal.GetPrimitiveArray<long>();
+        public static implicit operator ulong[](DatValue datVal) => datVal.GetPrimitiveArray<ulong>();
+        public static implicit operator float[](DatValue datVal) => datVal.GetPrimitiveArray<float>();
+        public static implicit operator double[](DatValue datVal) => datVal.GetPrimitiveArray<double>();
+        public static implicit operator string[](DatValue datVal) => datVal.GetStringArray();
+
+        public static implicit operator DatReference?(DatValue datVal) => datVal.GetReference();
+        public static implicit operator DatReference[](DatValue datVal) => datVal.GetReferenceArray();
+
+        public static implicit operator DatRow?(DatValue datVal) => datVal.GetReference()?.GetReferencedRow();
+        public static implicit operator DatRow[](DatValue datVal)
+        {
+            var references = datVal.GetReferenceArray();
+            var datRows = new DatRow[references.Length];
+            for (int i = 0; i < references.Length; i++)
+                datRows[i] = references[i].GetReferencedRow()!;
+
+            return datRows;
         }
     }
-
 }

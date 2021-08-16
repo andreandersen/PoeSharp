@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-
-using Microsoft.Toolkit.HighPerformance;
-
-namespace PoeSharp.Filetypes.Ggpk.Records
+﻿namespace PoeSharp.Filetypes.Ggpk.Records
 {
     public sealed class FreeRecord : IRecord
     {
