@@ -1,13 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
-
-using PoeSharp.Filetypes.BuildingBlocks;
-using PoeSharp.Filetypes.Ggpk.Records;
-
-namespace PoeSharp.Filetypes.Ggpk
+﻿namespace PoeSharp.Filetypes.Ggpk
 {
+    using System.Diagnostics;
+
     [DebuggerDisplay("{Path}")]
     public sealed class GgpkFile : IFile
     {

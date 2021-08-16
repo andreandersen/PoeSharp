@@ -3,14 +3,9 @@ using System.Collections.Generic;
 
 namespace PoeSharp.Filetypes.BuildingBlocks
 {
-    public abstract class ReadOnlyDictionaryBase<TKey, TValue> : IReadOnlyDictionary<TKey, TValue> where TKey : notnull
+    public class ReadOnlyDictionaryBase<TKey, TValue> : IReadOnlyDictionary<TKey, TValue> where TKey : notnull
     {
-        protected Dictionary<TKey, TValue> Underlying;
-
-        protected ReadOnlyDictionaryBase()
-        {
-            Underlying = new Dictionary<TKey, TValue>();
-        }
+        protected Dictionary<TKey, TValue> Underlying = new();
 
         public bool ContainsKey(TKey key) => Underlying.ContainsKey(key);
         public bool TryGetValue(TKey key, out TValue value) =>

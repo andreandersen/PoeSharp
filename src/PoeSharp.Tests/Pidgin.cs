@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,7 +27,7 @@ namespace PoeSharp.Tests
             var result = PidginStatParser.ParseInclude(input);
         }
 
-        [Fact]
+        //[Fact]
         public void ParseNoDescription()
         {
             var input = "no_description monster_dropped_item_quantity_+%";
@@ -34,3 +35,4 @@ namespace PoeSharp.Tests
         }
     }
 }
+*/

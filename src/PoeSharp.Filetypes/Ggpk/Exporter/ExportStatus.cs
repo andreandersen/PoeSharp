@@ -1,11 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-
-using PoeSharp.Filetypes.BuildingBlocks;
-
-namespace PoeSharp.Filetypes.Ggpk.Exporter
+﻿namespace PoeSharp.Filetypes.Ggpk.Exporter
 {
     internal class ExportStatus
     {
@@ -25,8 +18,8 @@ namespace PoeSharp.Filetypes.Ggpk.Exporter
         public ConcurrentQueue<IFile> FileQueue { get; }
 
         public bool IsEnumerationDone { get; internal set; }
-        public int FilesWrittenCount  => _filesWrittenCount;
-        public long FilesWrittenSize  => _filesWrittenSize;
+        public int FilesWrittenCount => _filesWrittenCount;
+        public long FilesWrittenSize => _filesWrittenSize;
 
         public long TotalFileSize => _totalSize;
         public int TotalFileCount => _totalFiles;

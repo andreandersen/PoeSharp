@@ -31,5 +31,26 @@ namespace PoeSharp.Filetypes.BuildingBlocks
         Stream GetStream();
 
         Task<Stream> GetStreamAsync();
+
+        public string Extension
+        {
+            get
+            {
+                var length = Name.Length;
+                for (var i = length; --i >= 0;)
+                {
+                    var ch = Name[i];
+                    if (ch == '.')
+                        return Name[i..length];
+                    if (ch == System.IO.Path.DirectorySeparatorChar ||
+                        ch == System.IO.Path.AltDirectorySeparatorChar ||
+                        ch == System.IO.Path.VolumeSeparatorChar)
+                    {
+                        break;
+                    }
+                }
+                return string.Empty;
+            }
+        }
     }
 }

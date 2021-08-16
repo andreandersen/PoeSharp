@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PoeSharp.Filetypes.Ggpk.Exporter
+﻿namespace PoeSharp.Filetypes.Ggpk.Exporter
 {
     public class ExportedFileEventArgs : EventArgs
     {
@@ -13,7 +11,7 @@ namespace PoeSharp.Filetypes.Ggpk.Exporter
             FileName = name;
             TotalFileCount = status.TotalFileCount;
             TotalFileSize = status.TotalFileSize;
-            
+
         }
 
         public bool IsEnumerationDone { get; set; }

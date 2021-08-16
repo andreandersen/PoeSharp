@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
-
+﻿using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Buffers;
 
 namespace PoeSharp.Filetypes.Bundle.Internal
@@ -26,7 +22,6 @@ namespace PoeSharp.Filetypes.Bundle.Internal
         public static bool operator !=(BundlePathRecord left, BundlePathRecord right) =>
             !(left == right);
 
-
         public PathString[] MapFilenames(Span<byte> innerBundle)
         {
             const byte nullTerm = 0;
@@ -34,6 +29,7 @@ namespace PoeSharp.Filetypes.Bundle.Internal
 
             var data = innerBundle.Slice(PayloadOffset, PayloadSize);
 
+            isBasePhase = false;
             var bases = new List<string>();
             var results = new List<PathString>();
 
@@ -54,11 +50,11 @@ namespace PoeSharp.Filetypes.Bundle.Internal
 
                 var nameLen = data.IndexOf(nullTerm);
                 var path = Encoding.ASCII.GetString(data.Slice(0, nameLen));
-                
+
                 data = data[(nameLen + 1)..];
 
                 var index = command - 1;
-                
+
                 if (index < bases.Count)
                 {
                     path = $"{bases[index]}{path}";
@@ -77,5 +73,4 @@ namespace PoeSharp.Filetypes.Bundle.Internal
             return results.ToArray();
         }
     }
-
 }

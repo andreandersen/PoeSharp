@@ -1,8 +1,4 @@
-﻿using System.IO;
-
-using PoeSharp.Filetypes.BuildingBlocks;
-
-namespace PoeSharp.Filetypes.Ggpk
+﻿namespace PoeSharp.Filetypes.Ggpk
 {
     public static class GgpkFileExtensions
     {

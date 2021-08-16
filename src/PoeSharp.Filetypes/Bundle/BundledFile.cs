@@ -1,18 +1,12 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading.Tasks;
-
-using PoeSharp.Filetypes.BuildingBlocks;
-using PoeSharp.Filetypes.Bundle.Internal;
+﻿using System.Diagnostics;
 
 namespace PoeSharp.Filetypes.Bundle
 {
     [DebuggerDisplay("{Path}")]
     public class BundledFile : IFile
     {
-        private readonly BundleIndex _bundleIndex;
-        private readonly BundleFileRecord _fileRecord;
+        internal readonly BundleIndex _bundleIndex;
+        internal readonly BundleFileRecord _fileRecord;
 
         public ulong Hash => _fileRecord.Hash;
 
@@ -36,7 +30,8 @@ namespace PoeSharp.Filetypes.Bundle
             Parent = parent;
         }
 
-        public Span<byte> AsSpan(long start = 0, long length = 0) => _bundleIndex.GetContents(_fileRecord);
+        public Span<byte> AsSpan(long start = 0, long length = 0) =>
+            _bundleIndex.GetContents(_fileRecord);
 
         public void CopyToStream(Stream destinationStream, long start = 0, long length = 0) =>
             destinationStream.Write(AsSpan());

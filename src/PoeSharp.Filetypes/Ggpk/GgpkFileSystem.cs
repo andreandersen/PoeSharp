@@ -1,11 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-
-using PoeSharp.Filetypes.BuildingBlocks;
-using PoeSharp.Filetypes.Ggpk.Records;
-
-namespace PoeSharp.Filetypes.Ggpk
+﻿namespace PoeSharp.Filetypes.Ggpk
 {
     public sealed class GgpkFileSystem
     {
@@ -15,7 +8,7 @@ namespace PoeSharp.Filetypes.Ggpk
 
         public string Path { get; }
 
-        public IReadOnlyDictionary<string, IDirectory> Directories => 
+        public IReadOnlyDictionary<string, IDirectory> Directories =>
             Root.Directories;
 
         public IReadOnlyDictionary<string, IFile> Files => Root.Files;

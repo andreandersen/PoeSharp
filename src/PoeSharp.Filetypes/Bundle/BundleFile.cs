@@ -1,10 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.CompilerServices;
-
-using PoeSharp.Filetypes.Bundle.Internal;
-
-namespace PoeSharp.Filetypes.Bundle
+﻿namespace PoeSharp.Filetypes.Bundle
 {
     public static class BundleFile
     {
@@ -24,20 +18,20 @@ namespace PoeSharp.Filetypes.Bundle
             var blockSizes = buffer.ConsumeTo<int>(count);
 
             var blockStart = Convert.ToInt32(Math.Floor(uncompressedOffset / (double)MaxChunkSize));
-            var blockCount = Convert.ToInt32(Math.Ceiling(uncompressedSizeTake / (double)MaxChunkSize))+1;
-            blockCount = Math.Min(blockSizes.Length-blockStart, blockCount);
+            var blockCount = Convert.ToInt32(Math.Ceiling(uncompressedSizeTake / (double)MaxChunkSize)) + 1;
+            blockCount = Math.Min(blockSizes.Length - blockStart, blockCount);
 
-            int slice = 0;
+            var slice = 0;
             if (blockStart > 0)
                 slice = blockSizes.Slice(0, blockStart).ToArray().Sum();
             if (slice > 0)
                 buffer = buffer[slice..];
 
             var destination = new Span<byte>(
-                new byte[(blockCount*MaxChunkSize) + SafeSpace]);
+                new byte[(blockCount * MaxChunkSize) + SafeSpace]);
 
             var pos = 0;
-            for (int i = 0; i < blockCount; i++)
+            for (var i = 0; i < blockCount; i++)
             {
                 var ii = blockStart + i;
                 var compressedSize = blockSizes[ii];
@@ -69,15 +63,15 @@ namespace PoeSharp.Filetypes.Bundle
             var count = (int)hdr.EntryCount;
             var lastEntry = count - 1;
             var blockSizes = buffer.ConsumeTo<int>(count);
-            int blockCount = blockSizes.Length;
+            var blockCount = blockSizes.Length;
 
-            int totalUncompressedSize = (int)hdr.UncompressedSize;
+            var totalUncompressedSize = (int)hdr.UncompressedSize;
 
             var destination = new Span<byte>(
                 new byte[totalUncompressedSize + SafeSpace]);
 
             var pos = 0;
-            for (int i = 0; i < blockCount; i++)
+            for (var i = 0; i < blockCount; i++)
             {
                 var compressedSize = blockSizes[i];
 

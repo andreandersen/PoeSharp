@@ -1,30 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-
-using Microsoft.Toolkit.HighPerformance;
-using Microsoft.Toolkit.HighPerformance.Extensions;
-
-using PoeSharp.Filetypes.BuildingBlocks;
-using PoeSharp.Filetypes.Bundle.Internal;
+﻿using System.Diagnostics;
 
 namespace PoeSharp.Filetypes.Bundle
 {
+    /// <summary>
+    /// Wrapper class to access files inside of the Bundles 
+    /// normally located in the Bundles2 folder.
+    /// </summary>
     public class BundleIndex
     {
-        private const string IndexFileName = "_.index.bin";
+        internal const string IndexFileName = "_.index.bin";
+        internal const string BundlesFolder = "Bundles2";
+
         private readonly IDirectory _sourceDir;
         private readonly BundleInfoRecord[] _bundles;
+        private readonly SimpleCache<IFile, byte[]> _compressedCache = new(16);
+        private readonly SimpleCache<uint, IFile> _bundleIndexCache = new(256);
 
-        public readonly BundledDirectory Root = new("", null);
+        /// <summary>
+        /// Virtual Root Directory for Bundled directories (and files)
+        /// </summary>
+        public BundledDirectory Root { get; } = new("", null);
 
+        /// <summary>
+        /// Creates a Bundle Index wrapper to access inner files
+        /// </summary>
+        /// <param name="sourceDirectory">Directory of the Bundles2 directory</param>
         public BundleIndex(IDirectory sourceDirectory)
         {
             if (sourceDirectory[IndexFileName] is not IFile indexFile)
                 throw new ArgumentException("Directory does not contain a bundle index");
-
             _sourceDir = sourceDirectory;
 
             var src = indexFile.AsSpan();
@@ -57,34 +61,40 @@ namespace PoeSharp.Filetypes.Bundle
                     dir.AddFile(bd);
                 }
             }
+        }
 
+        /// <summary>
+        /// Clears the memory cache used when accessing/decompressing files
+        /// </summary>
+        public void ClearMemoryCache()
+        {
+            _bundleIndexCache.Clear();
+            _compressedCache.Clear();
+            GC.Collect();
         }
 
         internal Span<byte> GetContents(BundleFileRecord record)
         {
-            var source = FindSourceFile(record);
-            var compressed = source.AsSpan();
-            var decompressed = BundleFile.Decompress(compressed, (int)record.FileOffset, (int)record.FileSize);
-            //var decompressed = BundleFile.Decompress(compressed).Slice((int)record.FileOffset, (int)record.FileSize);
+            var source = _bundleIndexCache.GetOrAdd(record.BundleIndex, () => FindSourceFile(record));
+            var compressed = _compressedCache.GetOrAdd(source, () => source.AsSpan().ToArray());
+            var decompressed = BundleFile.Decompress(
+                compressed, (int)record.FileOffset, (int)record.FileSize);
             return decompressed;
         }
 
         private IFile FindSourceFile(BundleFileRecord record)
         {
             const string bundleExt = ".bundle.bin";
-
             var bundle = _bundles[record.BundleIndex];
-            string name = bundle.Name;
+            var name = bundle.Name;
             var nameSpan = name.AsSpan();
-
             var currDir = _sourceDir;
-
             var folderEnd = name.LastIndexOf('/');
+
             if (folderEnd > 0)
             {
                 var fileName = nameSpan[(folderEnd + 1)..];
                 var path = name[0..folderEnd];
-                
                 var pathParts = path.Tokenize('/');
 
                 foreach (var part in pathParts)
@@ -148,5 +158,4 @@ namespace PoeSharp.Filetypes.Bundle
             return bundleInfo;
         }
     }
-
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace PoeSharp.Filetypes.Ggpk.Records
+﻿namespace PoeSharp.Filetypes.Ggpk.Records
 {
     public sealed class DirectoryRecord : IRecord
     {

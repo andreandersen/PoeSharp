@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
-using PoeSharp.Filetypes.BuildingBlocks;
-using PoeSharp.Filetypes.Ggpk.Records;
-
-
-namespace PoeSharp.Filetypes.Ggpk
+﻿namespace PoeSharp.Filetypes.Ggpk
 {
+    using System.Diagnostics;
+
     [DebuggerDisplay("{Path}")]
     public sealed class GgpkDirectory : IDirectory
     {

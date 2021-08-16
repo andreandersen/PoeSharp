@@ -1,10 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
-
-namespace PoeSharp.Filetypes
+﻿namespace PoeSharp.Filetypes
 {
+    using System.Diagnostics;
+    using System.Diagnostics.Contracts;
+
     [Pure, DebuggerStepThrough]
     public static class ThrowHelper
     {
@@ -38,5 +36,4 @@ namespace PoeSharp.Filetypes
             throw new ArgumentException(message);
         }
     }
-
 }

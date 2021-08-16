@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text;
-
-namespace PoeSharp.Filetypes.Bundle.Internal
+﻿namespace PoeSharp.Filetypes.Bundle.Internal
 {
     internal static class Fnv1aHash64
     {
@@ -22,7 +19,13 @@ namespace PoeSharp.Filetypes.Bundle.Internal
 
     internal static class Fnv1aHash64Extension
     {
-        public static ulong FnvHash(this ReadOnlySpan<char> str)
+        public static ulong FnvHash(this ReadOnlySpan<char> str) =>
+            FnvHashImpl(str);
+
+        public static ulong FnvHash(this string str) =>
+            FnvHashImpl(str);
+
+        private static ulong FnvHashImpl(ReadOnlySpan<char> str)
         {
             var len = str.Length;
             if (str[len - 1] == '/')

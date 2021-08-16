@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-
-using PoeSharp.Filetypes.BuildingBlocks;
+﻿using System.Diagnostics;
 
 namespace PoeSharp.Filetypes.Bundle
 {
@@ -36,10 +32,10 @@ namespace PoeSharp.Filetypes.Bundle
         {
             get
             {
-                if (_files.TryGetValue(index, out var file))
-                    return file;
                 if (_directories.TryGetValue(index, out var dir))
                     return dir;
+                if (_files.TryGetValue(index, out var file))
+                    return file;
 
                 return null;
             }

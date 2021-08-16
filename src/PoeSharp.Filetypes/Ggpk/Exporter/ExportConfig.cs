@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PoeSharp.Filetypes.Ggpk.Exporter
+﻿namespace PoeSharp.Filetypes.Ggpk.Exporter
 {
     public class ExportConfig
     {
@@ -8,7 +6,7 @@ namespace PoeSharp.Filetypes.Ggpk.Exporter
         private static readonly int DefaultExportTasks = 64;
 
         public ExportConfig(string exportPath, bool shallow = false)
-            : this(exportPath, DefaultEnumTasks, DefaultExportTasks, shallow) {}
+            : this(exportPath, DefaultEnumTasks, DefaultExportTasks, shallow) { }
 
         public ExportConfig(
             string exportPath,

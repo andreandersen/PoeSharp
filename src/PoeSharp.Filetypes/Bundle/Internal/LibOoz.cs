@@ -1,10 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
-
-using Microsoft.Toolkit.HighPerformance;
-using Microsoft.Toolkit.HighPerformance.Extensions;
-
-namespace PoeSharp.Filetypes.Bundle.Internal
+﻿namespace PoeSharp.Filetypes.Bundle.Internal
 {
     internal class LibOoz
     {
@@ -19,15 +13,14 @@ namespace PoeSharp.Filetypes.Bundle.Internal
             Span<byte> compressedContent, int compressedLength,
             Span<byte> decompressedContent, int decompressedSize)
         {
-            Span<byte> copy = stackalloc byte[compressedLength];
-            compressedContent.CopyTo(copy);
+            ref var src = ref compressedContent.DangerousGetReference();
+            ref var dst = ref decompressedContent.DangerousGetReference();
 
-            ref byte src = ref copy.DangerousGetReference();
-            ref byte dst = ref decompressedContent.DangerousGetReference();
-
-            return Ooz_Decompress(
+            var retVal = Ooz_Decompress(
                 ref src, compressedLength, ref dst, decompressedSize, 0, 0, 0,
-                null, 0, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, 0, 0);
+                null, 0, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, 0, 3);
+
+            return retVal;
         }
     }
 }

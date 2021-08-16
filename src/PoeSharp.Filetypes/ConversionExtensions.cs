@@ -1,18 +1,13 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-
-namespace PoeSharp.Filetypes
+﻿namespace PoeSharp.Filetypes
 {
     public static class ConversionExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T To<T>(this Span<byte> buf) where T : struct => 
+        public static T To<T>(this Span<byte> buf) where T : struct =>
             Unsafe.As<byte, T>(ref buf[0]);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T To<T>(this ReadOnlySpan<byte> buf) where T : struct => 
+        public static T To<T>(this ReadOnlySpan<byte> buf) where T : struct =>
             Unsafe.As<byte, T>(ref MemoryMarshal.GetReference(buf));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -26,7 +21,9 @@ namespace PoeSharp.Filetypes
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Span<T> Consume<T>(this ref Span<T> buf, int length) where T : unmanaged
+        public static Span<T> Consume<T>(
+            this ref Span<T> buf, int length) 
+            where T : unmanaged
         {
             var ret = buf.Slice(0, length);
             buf = buf[length..];
@@ -35,7 +32,19 @@ namespace PoeSharp.Filetypes
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Span<T> ConsumeTo<T>(
-            this ref Span<byte> buf, int elements) 
+            this ref Span<byte> buf, int elements)
+            where T : unmanaged
+        {
+            var size = Unsafe.SizeOf<T>();
+            var t = buf.Slice(0, elements * size);
+            var ret = MemoryMarshal.Cast<byte, T>(t);
+            buf = buf[(elements * size)..];
+            return ret;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ReadOnlySpan<T> As<T>(
+            this ReadOnlySpan<byte> buf, int elements)
             where T : unmanaged
         {
             var size = Unsafe.SizeOf<T>();
@@ -54,33 +63,5 @@ namespace PoeSharp.Filetypes
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToUnicodeText(this Span<byte> bytes) =>
             Encoding.Unicode.GetString(bytes);
-
-
-
-
-
-
-        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-        //public static object To(this Span<byte> buf, TypeCode type)
-        //{
-        //    var ret = type switch
-        //    {
-        //        TypeCode.Boolean => buf.To<bool>(),
-        //        TypeCode.Byte => buf.To<byte>(),
-        //        TypeCode.SByte => buf.To<sbyte>(),
-        //        TypeCode.Int16 => buf.To<short>(),
-        //        TypeCode.UInt16 => buf.To<ushort>(),
-        //        TypeCode.Int32 => buf.To<int>(),
-        //        TypeCode.UInt32 => buf.To<uint>(),
-        //        TypeCode.Int64 => buf.To<long>(),
-        //        TypeCode.UInt64 => buf.To<ulong>(),
-        //        TypeCode.Single => buf.To<float>(),
-        //        TypeCode.Double => buf.To<double>(),
-        //        TypeCode.Decimal => buf.To<decimal>(),
-        //        _ => ThrowHelper.NotSupported<object>()
-        //    };
-
-        //    return ret;
-        //}
     }
 }

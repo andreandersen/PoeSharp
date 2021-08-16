@@ -1,19 +1,8 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-
-using PoeSharp.Filetypes.BuildingBlocks;
-
-namespace PoeSharp.Filetypes.Ggpk.Exporter
+﻿namespace PoeSharp.Filetypes.Ggpk.Exporter
 {
     public class GgpkExporter
     {
-        #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public event EventHandler<ExportedFileEventArgs> FileExported;
-        #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public event EventHandler<ExportedFileEventArgs>? FileExported;
 
         public Task Export(GgpkFileSystem ggpk, ExportConfig config) =>
             Export(ggpk.Directories.Values, config);
