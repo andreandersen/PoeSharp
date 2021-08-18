@@ -109,7 +109,7 @@ namespace PoeSharp.Tests
         {
             var refVal = _datFileIndex[filename][760]["MiscAnimated1"].GetReference();
             Assert.NotNull(refVal);
-            Assert.Equal(1805, refVal.Value.RowIndex);
+            Assert.Equal(1805, refVal.RowIndex);
 
         }
 

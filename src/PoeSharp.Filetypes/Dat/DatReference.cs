@@ -2,7 +2,7 @@
 
 namespace PoeSharp.Filetypes.Dat
 {
-    public readonly struct DatReference : IEquatable<DatReference>
+    public sealed class DatReference : IEquatable<DatReference>
     {
         public DatRow ReferencedFrom { get; }
         public ReferenceDefinition? ReferenceDefinition { get; }
@@ -43,10 +43,12 @@ namespace PoeSharp.Filetypes.Dat
         }
 
         public override bool Equals(object? obj) => obj is DatReference reference && Equals(reference);
-        public bool Equals(DatReference other) =>
-            EqualityComparer<DatRow>.Default.Equals(ReferencedFrom, other.ReferencedFrom)
+        public bool Equals(DatReference? other) =>
+            other is not null
+            && EqualityComparer<DatRow>.Default.Equals(ReferencedFrom, other.ReferencedFrom)
             && EqualityComparer<ReferenceDefinition?>.Default.Equals(ReferenceDefinition, other.ReferenceDefinition)
             && RowIndex == other.RowIndex && IsForeign == other.IsForeign;
+
         public override int GetHashCode() => HashCode.Combine(ReferencedFrom, ReferenceDefinition, RowIndex, IsForeign);
 
         public static bool operator ==(DatReference left, DatReference right) => left.Equals(right);

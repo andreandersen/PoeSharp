@@ -1,6 +1,6 @@
 ﻿namespace PoeSharp.Filetypes.Dat
 {
-    public class DatRow
+    public sealed class DatRow
     {
         public readonly DatFile Parent;
         private readonly int _rowIndex;
